@@ -36,6 +36,7 @@ export const {
       },
     }),
   ],
+  trustHost: true,
   callbacks: {
     async signIn({ user, account, profile }) {
       connectToDb();
@@ -101,8 +102,8 @@ export const {
 
       return session;
     },
-    async token({ token }) {},
   },
+  secret: process.env.AUTH_SECRET,
 });
 
 function parseFullName(fullName) {

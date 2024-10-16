@@ -3,6 +3,7 @@
 import "./Menu.scss";
 import { menu } from "../../data";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const Menu = () => {
   const router = useRouter();
@@ -22,7 +23,7 @@ const Menu = () => {
               key={listItem.id}
               onClick={() => handleNavigation(listItem.url)}
             >
-              <img src={listItem.icon} alt="" />
+              <Image src={listItem.icon} alt="" width={20} height={20} />
               <span className="listItemTitle">{listItem.title}</span>
             </button>
           ))}

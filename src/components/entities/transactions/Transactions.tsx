@@ -6,7 +6,7 @@ import DataTable from "../../dataTable/DataTable";
 import Add from "../../add/Add";
 import { GridColDef } from "@mui/x-data-grid";
 import { addTransaction, deleteTransaction } from "@/lib/action";
-import transactionFormInput from "@/data/forms";
+import { transactionFormInput } from "@/data/forms";
 
 const columns: GridColDef[] = [
   {

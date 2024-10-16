@@ -16,7 +16,7 @@ const AboutPage = () => {
           with ease and grace.
         </h1>
         <p className={styles.desc}>
-          We create a digital space for you to see what's new in the stock
+          We create a digital space for you to see what&apos;s new in the stock
           market. Detailed portfolio dashboard with everything you need and
           more. We will help you to collect the information you need to know
           about the stock market compared to your Porfolio & Watch List

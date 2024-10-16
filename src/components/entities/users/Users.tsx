@@ -6,6 +6,7 @@ import "./Users.scss";
 import { useState } from "react";
 import Add from "@/components/add/Add";
 import { addUser, deleteUser } from "@/lib/action";
+import { userFormInput } from "@/data/forms";
 
 const columns: GridColDef[] = [
   {
@@ -35,34 +36,6 @@ const columns: GridColDef[] = [
   },
 ];
 
-const formInput = [
-  {
-    field: "firstName",
-    type: "string",
-    headerName: "First name",
-  },
-  {
-    field: "lastName",
-    type: "string",
-    headerName: "Last name",
-  },
-  {
-    field: "email",
-    type: "string",
-    headerName: "Email",
-  },
-  {
-    field: "password",
-    type: "password",
-    headerName: "Password",
-  },
-  {
-    field: "repeatPassword",
-    type: "password",
-    headerName: "Reapeat Password",
-  },
-];
-
 const Users = ({ users }) => {
   const [open, setOpen] = useState(false);
 
@@ -81,7 +54,7 @@ const Users = ({ users }) => {
       {open && (
         <Add
           slug="user"
-          formInput={formInput}
+          formInput={userFormInput}
           setOpen={setOpen}
           mutation={addUser}
         />

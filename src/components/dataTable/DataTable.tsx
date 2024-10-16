@@ -1,5 +1,6 @@
 import { DataGrid, GridColDef, GridToolbar } from "@mui/x-data-grid";
 import "./dataTable.scss";
+import Image from "next/image";
 
 type Props = {
   columns: GridColDef[];
@@ -20,9 +21,9 @@ const DataTable = (props: Props) => {
     renderCell: (params) => {
       return (
         <div className="action">
-          <img src="/view.svg" alt="" />
+          <Image src="/view.svg" alt="" width={20} height={20} />
           <div className="delete" onClick={() => handleDelete(params.row.id)}>
-            <img src="/delete.svg" alt="" />
+            <Image src="/delete.svg" alt="" width={20} height={20} />
           </div>
         </div>
       );

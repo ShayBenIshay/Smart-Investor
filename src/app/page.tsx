@@ -50,11 +50,12 @@ const columns: GridColDef[] = [
 export default function Home() {
   const { data: session, status } = useSession();
   const router = useRouter();
-
+  console.log("session session session session session session session ");
+  console.log(session);
   return (
     <div className={styles.container}>
       <div className={styles.textContainer}>
-        <p>{`Last Login: ${session?.user?.lastLogin}`}</p>
+        {/* <p>{`Last Login: ${session?.user?.}`}</p> */}
         <h1 className={styles.title}>Smart Investor</h1>
         <h2 className={styles.subtitle}>Welcome {session?.user?.name}</h2>
         <p className={styles.desc}>How can Smart Investor help you today?</p>

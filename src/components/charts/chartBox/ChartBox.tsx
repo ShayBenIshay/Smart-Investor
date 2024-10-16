@@ -2,7 +2,7 @@
 
 import "./chartBox.scss";
 import { Line, LineChart, ResponsiveContainer, Tooltip } from "recharts";
-import React from "react";
+import Image from "next/image";
 
 type Props = {
   color: string;
@@ -19,7 +19,7 @@ const ChartBox = (props: Props) => {
     <div className="chartBox">
       <div className="boxInfo">
         <div className="title">
-          <img src={props.icon} alt="" />
+          <Image src={props.icon} alt="" width={32} height={32} />
           <span>{props.title}</span>
         </div>
         <h1>{props.number}</h1>
