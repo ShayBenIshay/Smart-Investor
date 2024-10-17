@@ -23,12 +23,7 @@ const nextConfig = {
     return config;
   },
 
-  experimental: {
-    cacheHandler: path.resolve(
-      __dirname,
-      "node_modules/next/dist/server/incremental-cache"
-    ),
-  },
+  distDir: ".next",
 };
 
 export default nextConfig;
