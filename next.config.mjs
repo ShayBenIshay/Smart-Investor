@@ -14,13 +14,23 @@ const nextConfig = {
       },
     ],
   },
+
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      "@": path.resolve(__dirname, "src"), // This will now work
+      "@": path.resolve(__dirname, "src"),
     };
     return config;
   },
+
+  experimental: {
+    incrementalCacheHandlerPath: path.resolve(
+      __dirname,
+      "node_modules/next/dist/server/incremental-cache"
+    ),
+  },
+
+  distDir: path.join("/var/cache/nextjs", ".next"),
 };
 
 export default nextConfig;
