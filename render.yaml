@@ -1,0 +1,10 @@
+version: 1
+services:
+  - type: web
+    name: smart-investor-nextjs
+    env: node
+    buildCommand: npm run build
+    startCommand: npm run start
+    autoDeploy: true
+    cache:
+      - .next/cache

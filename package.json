@@ -31,9 +31,5 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.6",
     "typescript": "^5.5.4"
-  },
-  "cacheDirectories": [
-    "client/node_modules",
-    "server/node_modules"
-  ]
+  }
 }
