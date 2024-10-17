@@ -33,7 +33,7 @@
     "typescript": "^5.5.4"
   },
   "cacheDirectories": [
-    "node_modules/",
-    ".next/cache/"
+    "client/node_modules",
+    "server/node_modules"
   ]
 }
