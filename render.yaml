@@ -11,6 +11,8 @@ services:
         - path: /node_modules
         - path: .next/cache
     envVars:
+      - key: NODE_VERSION
+        value: 20.12.1
       - key: NODE_ENV
         value: production
     routes:

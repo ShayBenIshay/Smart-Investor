@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import "./Transactions.scss";
+import "./transactions.scss";
 import DataTable from "../../dataTable/DataTable";
 import Add from "../../add/Add";
 import { GridColDef } from "@mui/x-data-grid";

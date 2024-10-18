@@ -1,6 +1,6 @@
 "use client";
 
-import "./Menu.scss";
+import "./menu.scss";
 import { menu } from "../../data";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
