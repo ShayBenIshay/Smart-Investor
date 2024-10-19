@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { Transaction, User } from "./models";
+import { Transaction, User, Portfolio } from "./models";
 import { connectToDb } from "./utils";
 import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
@@ -65,6 +65,7 @@ export const addTransaction = async (prevState, formData) => {
       { $set: { wallet: newLiquid } },
       { new: true }
     );
+    console.log("updatedUser updatedUser updatedUser updatedUser updatedUser ");
     console.log(updatedUser);
 
     const newTransaction = new Transaction({
@@ -77,6 +78,18 @@ export const addTransaction = async (prevState, formData) => {
     });
     await newTransaction.save();
     console.log("newTransaction", newTransaction);
+    console.log(session);
+    const portfolio = await Portfolio.findOne({ userId: session?.user?.id });
+    console.log("portfolio portfolio portfolio portfolio portfolio ");
+    console.log(newTransaction._id);
+    portfolio.transactions.push(newTransaction._id);
+    portfolio.totalValue +=
+      operation === "buy" ? price * papers : -(price * papers);
+
+    console.log(portfolio);
+    await portfolio.save();
+    console.log("Updated Portfolio:", portfolio);
+
     revalidatePath("/admin/transactions");
   } catch (err) {
     console.log(err);

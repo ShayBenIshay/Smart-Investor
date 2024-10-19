@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema(
     },
     wallet: {
       type: Number,
-      default: 0,
+      default: 10000,
     },
   },
   { timestamps: true }
@@ -70,7 +70,28 @@ const transactionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+const portfolioSchema = new mongoose.Schema(
+  {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    portfolioName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    transactions: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "Transaction" },
+    ],
+    totalValue: {
+      type: Number,
+      default: 0,
+    },
+  },
+  { timestamps: true }
+);
+
 export const User = mongoose.models?.User || mongoose.model("User", userSchema);
 export const Transaction =
   mongoose.models?.Transaction ||
   mongoose.model("Transaction", transactionSchema);
+export const Portfolio =
+  mongoose.models?.Portfolio || mongoose.model("Portfolio", portfolioSchema);

@@ -7,6 +7,8 @@ export async function middleware(req) {
   const { pathname } = req.nextUrl;
   if (pathname.startsWith("/admin")) {
     if (!token || !token.isAdmin) {
+      console.log("token token token token token token ");
+      console.log(token);
       return NextResponse.redirect(new URL("/", req.url));
     }
   }

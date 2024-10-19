@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 import { connectToDb } from "@/lib/utils";
-import { User } from "@/lib/models";
+import { User, Portfolio } from "@/lib/models";
 
 export const {
   handlers: { GET, POST },
@@ -79,6 +79,16 @@ export const {
       dbUser.lastLogin = new Date();
 
       await dbUser.save();
+
+      if (!(await Portfolio.findOne({ user: dbUser._id }))) {
+        const newPortfolio = new Portfolio({
+          userId: dbUser._id,
+          portfolioName: `${dbUser.firstName}'s Portfolio`,
+          transactions: [],
+          totalValue: 0,
+        });
+        await newPortfolio.save();
+      }
 
       return true;
     },
