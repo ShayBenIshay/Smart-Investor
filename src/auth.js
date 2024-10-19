@@ -39,10 +39,6 @@ export const {
   trustHost: true,
   callbacks: {
     async signIn({ user, account, profile }) {
-      console.log("account account account account account ");
-      console.log(account);
-      console.log("profile profile profile profile profile ");
-      console.log(profile);
       connectToDb();
       let dbUser = await User.findOne({ email: profile.email });
 
@@ -88,13 +84,10 @@ export const {
     },
     async jwt({ token, user }) {
       if (user) {
-        console.log("userDB userDB userDB userDB userDB userDB userDB ");
-        console.log(user);
         const userDB = await User.findOne({ email: user.email });
         token.id = userDB._id;
         token.isAdmin = userDB.isAdmin || false;
         token.previousLogin = userDB.previousLogin;
-        token.wallet = userDB.wallet;
       }
       return token;
     },
@@ -107,7 +100,6 @@ export const {
         session.user.id = token.id;
         session.user.isAdmin = token.isAdmin;
         session.user.lastLogin = token.previousLogin;
-        session.user.wallet = token.wallet;
       }
 
       return session;

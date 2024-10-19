@@ -9,11 +9,8 @@ export const metadata = {
 };
 
 const TransactionsPage = async () => {
-  //get user email from session/token
   const session = await auth();
-  console.log(session);
 
-  // const transactions = await getUserTransactions(session?.user?.email);
   const transactions = await getUserTransactions(session?.user?.id);
 
   return <Transactions transactions={transactions} />;

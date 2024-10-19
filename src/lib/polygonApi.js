@@ -17,7 +17,6 @@ export const fetchPriceFromPolygon = async (date, symbol) => {
   const formattedDate = date?.toISOString().split("T")[0];
 
   const apiKey = process.env.POLYGON_API_KEY;
-  console.log(apiKey);
 
   try {
     const response = await fetch(

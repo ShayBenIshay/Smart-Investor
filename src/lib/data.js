@@ -62,8 +62,6 @@ export const getUserTransactions = async (id) => {
   try {
     connectToDb();
     const transactions = await Transaction.find({ userId: id });
-    // console.log("transactions transactions transactions transactions ");
-    // console.log(transactions);
     const transformedTransactions = transactions.map((transaction) => {
       const transactionObj = transaction.toObject();
       return {
@@ -81,4 +79,10 @@ export const getUserTransactions = async (id) => {
     console.log(err);
     throw new Error("Failed to fetch transactions!");
   }
+};
+
+export const getWallet = async (id) => {
+  connectToDb();
+  const user = await User.findById(id);
+  return user.wallet;
 };

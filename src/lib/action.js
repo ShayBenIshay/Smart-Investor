@@ -5,6 +5,7 @@ import { Transaction, User } from "./models";
 import { connectToDb } from "./utils";
 import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
+import { getWallet } from "./data";
 
 export const addUser = async (prevState, formData) => {
   const { firstName, lastName, email, password, img, isAdmin } =
@@ -46,20 +47,32 @@ export const deleteUser = async (id) => {
 
 export const addTransaction = async (prevState, formData) => {
   const session = await auth();
-  console.log(session);
-
-  const { ticker, price, executedAt, buy, papers } =
+  const { ticker, price, executedAt, operation, papers } =
     Object.fromEntries(formData);
 
   try {
     connectToDb();
+    const liquid = await getWallet(session?.user?.id);
+    const diff = operation === "buy" ? price * papers : -price * papers;
+    const newLiquid = liquid - diff;
+    if (newLiquid < 0) {
+      return {
+        error: "Insufficient funds. You cannot proceed with the transaction.",
+      };
+    }
+    const updatedUser = await User.findByIdAndUpdate(
+      session?.user?.id,
+      { $set: { wallet: newLiquid } },
+      { new: true }
+    );
+    console.log(updatedUser);
 
     const newTransaction = new Transaction({
       userId: session?.user?.id,
       ticker,
       price,
       executedAt,
-      buy,
+      operation,
       papers,
     });
     await newTransaction.save();
