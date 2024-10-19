@@ -30,16 +30,8 @@
     "**/*.tsx",
     "src/app/api/auth/[...nextauth].js",
     "src/app/api/wallet/route.js",
-    "src/app/Providers.jsx"
+    "src/app/Providers.jsx",
+    "src/lib/polygonApi.js"
   ],
   "exclude": ["node_modules"]
 }
-//jsconfig:
-// {
-//   "compilerOptions": {
-//     "jsx": "react",
-//     "paths": {
-//       "@/*": ["./src/*"]
-//     }
-//   }
-// }

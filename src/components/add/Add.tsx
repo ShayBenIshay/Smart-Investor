@@ -6,7 +6,6 @@ import { useFormState } from "react-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useState } from "react";
-import { fetchPriceFromPolygon } from "@/lib/polygonApi";
 
 type FormInput = {
   label: string;

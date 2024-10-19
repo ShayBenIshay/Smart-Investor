@@ -39,6 +39,10 @@ export const {
   trustHost: true,
   callbacks: {
     async signIn({ user, account, profile }) {
+      console.log("account account account account account ");
+      console.log(account);
+      console.log("profile profile profile profile profile ");
+      console.log(profile);
       connectToDb();
       let dbUser = await User.findOne({ email: profile.email });
 
