@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { Transaction, User } from "./models";
 import { connectToDb } from "./utils";
 import bcrypt from "bcryptjs";
+import { auth } from "@/auth";
 
 export const addUser = async (prevState, formData) => {
   const { firstName, lastName, email, password, img, isAdmin } =
@@ -44,6 +45,9 @@ export const deleteUser = async (id) => {
 };
 
 export const addTransaction = async (prevState, formData) => {
+  const session = await auth();
+  console.log(session);
+
   const { ticker, price, executedAt, buy, papers } =
     Object.fromEntries(formData);
 
@@ -51,6 +55,7 @@ export const addTransaction = async (prevState, formData) => {
     connectToDb();
 
     const newTransaction = new Transaction({
+      userId: session?.user?.id,
       ticker,
       price,
       executedAt,

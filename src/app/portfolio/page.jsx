@@ -6,7 +6,7 @@ import pieChartData from "@/data/pieChartData";
 import { barChartBoxRevenue } from "@/data/barChartBoxData";
 import { chartBoxRevenue, chartBoxPortfolioValue } from "@/data/chartBoxData";
 
-import "./home.scss";
+import "./portfolio.scss";
 
 export const metadata = {
   title: "Portfolio",

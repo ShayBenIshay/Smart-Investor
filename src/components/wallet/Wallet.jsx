@@ -1,18 +1,10 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
-const Wallet = () => {
-  const { data: session } = useSession();
-  const [liquid, setLiquid] = useState(0);
+const Wallet = ({ liquid: initialLiquid }) => {
+  const [liquid, setLiquid] = useState(initialLiquid);
   const [amount, setAmount] = useState(0);
-
-  useEffect(() => {
-    if (session?.user?.wallet) {
-      setLiquid(session.user.wallet);
-    }
-  }, [session]);
 
   const handleTransaction = async (operation) => {
     try {
@@ -47,8 +39,6 @@ const Wallet = () => {
       handleTransaction("withdraw");
     }
   };
-
-  if (!session) return <p>Loading...</p>;
 
   return (
     <div>

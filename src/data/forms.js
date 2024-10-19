@@ -7,18 +7,18 @@ export const transactionFormInput = [
     type: "string",
   },
   {
-    label: "Stock Price",
-    element: "input",
-    name: "price",
-    placeholder: "Price",
-    type: "number",
-  },
-  {
     label: "Transaction Date",
     element: "datePicker",
     name: "executedAt",
     placeholder: "Date",
     type: "string",
+  },
+  {
+    label: "Stock Price",
+    element: "input",
+    name: "price",
+    placeholder: "Price",
+    type: "number",
   },
   {
     label: "Operation(Buy/Sell)",

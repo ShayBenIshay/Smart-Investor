@@ -57,3 +57,28 @@ export const getTransactions = async () => {
     throw new Error("Failed to fetch transactions!");
   }
 };
+
+export const getUserTransactions = async (id) => {
+  try {
+    connectToDb();
+    const transactions = await Transaction.find({ userId: id });
+    // console.log("transactions transactions transactions transactions ");
+    // console.log(transactions);
+    const transformedTransactions = transactions.map((transaction) => {
+      const transactionObj = transaction.toObject();
+      return {
+        ...transactionObj,
+        _id: transactionObj._id.toString(),
+        id: transactionObj._id.toString(),
+        userId: transactionObj.userId.toString(),
+        createdAt: transactionObj.createdAt.toISOString(),
+        updatedAt: transactionObj.updatedAt.toISOString(),
+      };
+    });
+
+    return transformedTransactions;
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to fetch transactions!");
+  }
+};

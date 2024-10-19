@@ -6,6 +6,7 @@ import { useFormState } from "react-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useState } from "react";
+import { fetchPriceFromPolygon } from "@/lib/polygonApi";
 
 type FormInput = {
   label: string;
@@ -22,14 +23,33 @@ type Props = {
     prevState: any,
     formData: FormData
   ) => Promise<void | { error: string }>;
+  onDateChange?: (date: Date, symbol: string) => Promise<any>;
 };
 
 const Add = (props: Props) => {
   const [state, formAction] = useFormState(props.mutation, undefined);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  4;
+  const [price, setPrice] = useState<number | null>(null);
+  const [symbol, setSymbol] = useState<string>("");
+
+  const handleDateChange = async (date: Date, symbol: string) => {
+    setSelectedDate(date);
+    if (props.onDateChange && symbol) {
+      const price = await props.onDateChange(date, symbol);
+      console.log(price);
+      setPrice(price);
+    }
+  };
+
+  const handleTickerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSymbol(e.target.value);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     props.setOpen(false);
   };
+
   return (
     <div className="add">
       <div className="modal">
@@ -51,7 +71,7 @@ const Add = (props: Props) => {
                 <DatePicker
                   name={input.name}
                   selected={selectedDate}
-                  onChange={(date: Date) => setSelectedDate(date)}
+                  onChange={(date: Date) => handleDateChange(date, symbol)}
                   dateFormat="dd/MM/yyyy"
                   placeholderText={input.placeholder}
                 />
@@ -60,6 +80,10 @@ const Add = (props: Props) => {
                   type={input.type}
                   name={input.name}
                   placeholder={input.placeholder}
+                  value={input.name === "price" && price ? price : undefined}
+                  onChange={
+                    input.name === "ticker" ? handleTickerChange : undefined
+                  }
                 />
               )}
             </div>

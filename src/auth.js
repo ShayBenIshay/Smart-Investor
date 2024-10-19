@@ -84,8 +84,10 @@ export const {
     },
     async jwt({ token, user }) {
       if (user) {
+        console.log("userDB userDB userDB userDB userDB userDB userDB ");
+        console.log(user);
         const userDB = await User.findOne({ email: user.email });
-        token.id = user.id;
+        token.id = userDB._id;
         token.isAdmin = userDB.isAdmin || false;
         token.previousLogin = userDB.previousLogin;
         token.wallet = userDB.wallet;
@@ -93,6 +95,10 @@ export const {
       return token;
     },
     async session({ session, token }) {
+      //check this what is token.sub?
+      // if (token?.sub) {
+      //   session.user.id = token.sub; // Use the token's sub property to store user ID in the session
+      // }
       if (token) {
         session.user.id = token.id;
         session.user.isAdmin = token.isAdmin;

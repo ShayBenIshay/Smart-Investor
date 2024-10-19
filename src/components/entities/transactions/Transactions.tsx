@@ -7,6 +7,7 @@ import Add from "../../add/Add";
 import { GridColDef } from "@mui/x-data-grid";
 import { addTransaction, deleteTransaction } from "@/lib/action";
 import { transactionFormInput } from "@/data/forms";
+import { fetchPriceFromPolygon } from "@/lib/polygonApi";
 
 const columns: GridColDef[] = [
   {
@@ -16,16 +17,16 @@ const columns: GridColDef[] = [
     width: 100,
   },
   {
-    field: "price",
-    type: "number",
-    headerName: "Price",
-    width: 100,
-  },
-  {
     field: "executedAt",
     type: "string",
     headerName: "Executed at",
     width: 150,
+  },
+  {
+    field: "price",
+    type: "number",
+    headerName: "Price",
+    width: 100,
   },
   {
     field: "papers",
@@ -50,6 +51,11 @@ const columns: GridColDef[] = [
 const Transactions = ({ transactions }) => {
   const [open, setOpen] = useState(false);
 
+  const handleDateChange = async (date: Date, symbol: string) => {
+    const fetchedPrice = await fetchPriceFromPolygon(date, symbol);
+    return fetchedPrice;
+  };
+
   return (
     <div className="transactions">
       <div className="info">
@@ -68,6 +74,7 @@ const Transactions = ({ transactions }) => {
           formInput={transactionFormInput}
           setOpen={setOpen}
           mutation={addTransaction}
+          onDateChange={handleDateChange}
         />
       )}
     </div>
