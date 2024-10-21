@@ -24,12 +24,12 @@ export const chartBoxPortfolioValue = {
   dataKey: "portfolioValue",
   percentage: +25,
   chartData: [
-    { name: "Sun", portfolioValue: 400 },
-    { name: "Mon", portfolioValue: 600 },
-    { name: "Tue", portfolioValue: 500 },
-    { name: "Wed", portfolioValue: 700 },
-    { name: "Thu", portfolioValue: 400 },
+    { name: "Sun", portfolioValue: 100 },
+    { name: "Mon", portfolioValue: 500 },
+    { name: "Tue", portfolioValue: 700 },
+    { name: "Wed", portfolioValue: 200 },
+    { name: "Thu", portfolioValue: 100 },
     { name: "Fri", portfolioValue: 500 },
-    { name: "Sat", portfolioValue: 450 },
+    { name: "Sat", portfolioValue: 1050 },
   ],
 };

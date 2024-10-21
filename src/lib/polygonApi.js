@@ -1,5 +1,12 @@
 "use server";
 
+import { getLastTradingDate } from "./utils";
+
+export const fetchLastClosingPrice = async (symbol) => {
+  const date = getLastTradingDate();
+  return await fetchPriceFromPolygon(date, symbol);
+};
+
 export const fetchPriceFromPolygon = async (date, symbol) => {
   if (!date) {
     console.error("Invalid date provided");

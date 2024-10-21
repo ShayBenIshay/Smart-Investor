@@ -56,6 +56,7 @@ const Transactions = ({ transactions }) => {
     return fetchedPrice;
   };
 
+  console.log("transactions transactions", transactions);
   return (
     <div className="transactions">
       <div className="info">

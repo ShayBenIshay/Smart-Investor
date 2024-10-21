@@ -23,7 +23,8 @@
     "react-datepicker": "^7.4.0",
     "react-dom": "^18",
     "recharts": "^2.12.7",
-    "sass": "^1.78.0"
+    "sass": "^1.78.0",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.5.4",

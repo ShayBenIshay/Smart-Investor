@@ -14,3 +14,16 @@ export const connectToDb = async () => {
     throw new Error(error);
   }
 };
+
+export const getLastTradingDate = () => {
+  let yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  if (yesterday.getDay() === 0) {
+    yesterday.setDate(yesterday.getDate() - 2);
+  } else if (yesterday.getDay() === 6) {
+    yesterday.setDate(yesterday.getDate() - 1);
+  }
+
+  return yesterday;
+};
