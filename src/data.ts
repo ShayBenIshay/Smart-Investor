@@ -359,18 +359,6 @@ export const userRows = [
   },
 ];
 
-export const transactions = [
-  {
-    id: 1,
-    username: "Shay",
-    ticker: "AAPL",
-    price: 220.82,
-    date: "08/09/2024",
-    papers: 2,
-    buy: true,
-    createdAt: "2024-08-20T21:46:01.164+00:00",
-  },
-];
 export const products = [
   {
     id: 1,

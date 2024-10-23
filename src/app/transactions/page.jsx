@@ -1,7 +1,6 @@
 import styles from "./transactions.module.css";
 import { getUserTransactions } from "@/lib/data";
 import Transactions from "@/components/entities/transactions/Transactions";
-import { auth } from "@/auth";
 
 export const metadata = {
   title: "Transactions",
@@ -9,9 +8,7 @@ export const metadata = {
 };
 
 const TransactionsPage = async () => {
-  const session = await auth();
-
-  const transactions = await getUserTransactions(session?.user?.id);
+  const transactions = await getUserTransactions();
 
   return <Transactions transactions={transactions} />;
 };

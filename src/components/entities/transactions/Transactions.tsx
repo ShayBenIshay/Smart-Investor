@@ -35,8 +35,8 @@ const columns: GridColDef[] = [
     width: 90,
   },
   {
-    field: "buy",
-    headerName: "buy",
+    field: "operation",
+    headerName: "Operation",
     width: 90,
     type: "boolean",
   },
@@ -56,7 +56,6 @@ const Transactions = ({ transactions }) => {
     return fetchedPrice;
   };
 
-  console.log("transactions transactions", transactions);
   return (
     <div className="transactions">
       <div className="info">

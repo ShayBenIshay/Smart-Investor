@@ -5,7 +5,7 @@ import { Transaction, User, Portfolio } from "./models";
 import { connectToDb } from "./utils";
 import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
-import { getWallet } from "./data";
+import { getWallet, updateWallet } from "./data";
 import { fetchLastClosingPrice, fetchPriceFromPolygon } from "./polygonApi";
 import { v4 as uuidv4 } from "uuid";
 
@@ -49,31 +49,26 @@ export const deleteUser = async (id) => {
 
 export const addTransaction = async (prevState, formData) => {
   const session = await auth();
-  const { ticker, price, executedAt, buy, papers } =
+  const { ticker, price, executedAt, operation, papers } =
     Object.fromEntries(formData);
-
   try {
     connectToDb();
-    const liquid = await getWallet(session?.user?.id);
-    const assetValue = buy ? price * papers : -price * papers;
-    const newLiquid = liquid + assetValue;
+    const liquid = await getWallet();
+    const assetValue = operation === "buy" ? price * papers : -price * papers;
+    const newLiquid = liquid - assetValue;
     if (newLiquid < 0) {
       return {
         error: "Insufficient funds. You cannot proceed with the transaction.",
       };
     }
-    const updatedUser = await User.findByIdAndUpdate(
-      session?.user?.id,
-      { $set: { wallet: newLiquid } },
-      { new: true }
-    );
+    const updatedUser = updateWallet(newLiquid);
 
     const newTransaction = new Transaction({
       userId: session?.user?.id,
       ticker,
       price,
       executedAt,
-      buy,
+      operation,
       papers,
     });
     await newTransaction.save();
@@ -81,7 +76,8 @@ export const addTransaction = async (prevState, formData) => {
     const portfolio = await Portfolio.findOne({ userId: session?.user?.id });
     //if !portfolio create new one?
     portfolio.transactions.push(newTransaction._id);
-    portfolio.totalValue += buy ? price * papers : -(price * papers);
+    portfolio.totalValue +=
+      operation === "buy" ? price * papers : -(price * papers);
 
     await portfolio.save();
     console.log("Updated Portfolio:", portfolio);
@@ -111,7 +107,7 @@ export const aggregateTransactions = (transactions) => {
   const stockAggregation = {};
 
   transactions.forEach((transaction) => {
-    const { ticker, price, papers, buy } = transaction;
+    const { ticker, price, papers, operation } = transaction;
     if (!stockAggregation[ticker]) {
       stockAggregation[ticker] = {
         id: uuidv4(),
@@ -122,7 +118,7 @@ export const aggregateTransactions = (transactions) => {
       };
     }
 
-    if (buy) {
+    if (operation === "buy") {
       stockAggregation[ticker].totalShares += papers;
       stockAggregation[ticker].totalInvestment += price * papers;
     } else {

@@ -49,7 +49,6 @@ const columns: GridColDef[] = [
   },
 ];
 const PortfolioTable = ({ stocks }) => {
-  console.log("stockAggregation stockAggregation", stocks);
   return (
     <div>
       <DataTable
@@ -63,27 +62,3 @@ const PortfolioTable = ({ stocks }) => {
 };
 
 export default PortfolioTable;
-
-// const PortfolioTable = ({ portfolio }) => {
-//   if (!portfolio) {
-//     return <div>No portfolio found.</div>;
-//   }
-//   return (
-//     <div>
-//       <h1>{portfolio.portfolioName}</h1>
-//       <h2>Total Value: ${portfolio.totalValue.toFixed(2)}</h2>
-//       <h3>Transactions:</h3>
-//       <ul>
-//         {portfolio.transactions.map((transaction) => (
-//           <li key={transaction._id}>
-//             {transaction.ticker} - {transaction.papers} shares at $
-//             {transaction.price.toFixed(2)} on{" "}
-//             {new Date(transaction.executedAt).toLocaleDateString()}
-//           </li>
-//         ))}
-//       </ul>
-//     </div>
-//   );
-// };
-
-// export default PortfolioTable;

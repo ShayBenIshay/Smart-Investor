@@ -2,50 +2,9 @@
 
 import Image from "next/image";
 import styles from "./home.module.css";
-import { GridColDef } from "@mui/x-data-grid";
 import { useRouter } from "next/navigation";
 
 import { useSession } from "next-auth/react";
-
-const columns: GridColDef[] = [
-  { field: "id", headerName: "ID", width: 90 },
-  {
-    field: "ticker",
-    type: "string",
-    headerName: "Ticker",
-    width: 250,
-  },
-  {
-    field: "price",
-    type: "number",
-    headerName: "Price",
-    width: 200,
-  },
-  {
-    field: "executedAt",
-    type: "string",
-    headerName: "Executed Date",
-    width: 150,
-  },
-  {
-    field: "papers",
-    headerName: "Papers",
-    type: "string",
-    width: 200,
-  },
-  {
-    field: "buy",
-    headerName: "buy",
-    width: 150,
-    type: "boolean",
-  },
-  {
-    field: "createdAt",
-    headerName: "Created At",
-    width: 200,
-    type: "string",
-  },
-];
 
 export default function Home() {
   const { data: session, status } = useSession();

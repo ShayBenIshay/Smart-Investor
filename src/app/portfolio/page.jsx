@@ -1,74 +1,58 @@
 import PieChartBox from "@/components/charts/pieCartBox/PieChartBox";
-import ChartBox from "@/components/charts/chartBox/ChartBox";
-import BarChartBox from "@/components/charts/barChartBox/BarChartBox";
+// import ChartBox from "@/components/charts/chartBox/ChartBox";
+// import BarChartBox from "@/components/charts/barChartBox/BarChartBox";
 import BigChartBox from "@/components/charts/bigChartBox/BigChartBox";
-import pieChartData from "@/data/pieChartData";
-import { barChartBoxRevenue } from "@/data/barChartBoxData";
-import { chartBoxRevenue, chartBoxPortfolioValue } from "@/data/chartBoxData";
+// import { barChartBoxRevenue } from "@/data/barChartBoxData";
+// import { chartBoxRevenue, chartBoxPortfolioValue } from "@/data/chartBoxData";
 
 import "./portfolio.scss";
-import { Portfolio, Transaction } from "@/lib/models";
-import { aggregateTransactions } from "@/lib/action";
-import { auth } from "@/auth";
 import PortfolioTable from "@/components/portfolio/PortfolioTable";
-import { addCurrentPrices } from "@/lib/action";
-import { connectToDb } from "@/lib/utils";
+import { getPortfolioTransactions } from "@/lib/data";
 
 export const metadata = {
   title: "Portfolio",
   description: "Portfolio page",
 };
 
-const chartBoxPerformance = (stocks) => {
-  const chartBoxPerformance = {
-    color: "teal",
-    icon: "/revenueIcon.svg",
-    title: "Performance",
-    //continue here. should be unrealizedPL for a week period
-    number: "$56.432",
-    dataKey: "revenue",
-    percentage: -12,
-    chartData: [
-      { name: "Sun", revenue: 400 },
-      { name: "Mon", revenue: 600 },
-      { name: "Tue", revenue: 500 },
-      { name: "Wed", revenue: 700 },
-      { name: "Thu", revenue: 400 },
-      { name: "Fri", revenue: 500 },
-      { name: "Sat", revenue: 450 },
-    ],
-  };
+const pieChart = (stocks, totalValue) => {
+  const colors = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+
+  return stocks.map((stock, index) => ({
+    name: stock.ticker,
+    value: parseFloat(((100 * stock.totalInvestment) / totalValue).toFixed(2)),
+    color: colors[index % colors.length],
+  }));
 };
 
 const PortfolioPage = async () => {
-  const session = await auth();
-  connectToDb();
-  const portfolio = await Portfolio.findOne({ userId: session.user.id })
-    .populate("transactions")
-    .exec();
-  const transactions = portfolio?.transactions;
-  const stockAggregation = await aggregateTransactions(transactions);
-  const stocks = await addCurrentPrices(stockAggregation);
+  const stocksArr = await getPortfolioTransactions();
+  console.log(stocksArr);
 
-  const stocksArr = Object.values(stocks);
+  const totals = stocksArr.reduce(
+    (acc, stock) => {
+      acc.totalValue += stock.currentPrice * stock.totalShares;
+      acc.totalInvestment += stock.totalInvestment;
+      return acc;
+    },
+    { totalValue: 0, totalInvestment: 0 }
+  );
+
   return (
     <div>
       <div className="graphs">
-        <div className="box box2">
-          <ChartBox {...chartBoxRevenue} />
-        </div>
-        <div className="box box2">
-          <ChartBox {...chartBoxPortfolioValue} />
-        </div>
         <div className="box box4">
-          <PieChartBox data={pieChartData} />
+          <PieChartBox data={pieChart(stocksArr, totals.totalValue)} />
         </div>
         <div className="box box7">
-          <BigChartBox />
+          <BigChartBox stocks={stocksArr} />
         </div>
-        <div className="box box9">
+        {/* <div className="box box2">
+          <ChartBox {...chartBoxPortfolioValue} />
+        </div> */}
+
+        {/* <div className="box box9">
           <BarChartBox {...barChartBoxRevenue} />
-        </div>
+        </div> */}
       </div>
       <div className="box10">
         <PortfolioTable stocks={stocksArr} />
@@ -78,3 +62,32 @@ const PortfolioPage = async () => {
 };
 
 export default PortfolioPage;
+
+{
+  /* <div className="box box2">
+          <ChartBox
+            {...chartBoxPerformance(totals.totalValue, totals.totalInvestment)}
+          />
+        </div> */
+}
+
+// const chartBoxPerformance = (totalValue, totalInvestment) => {
+//   return {
+//     color: "teal",
+//     icon: "/revenueIcon.svg",
+//     title: "Total Holdings",
+//     number: totalValue,
+//     dataKey: "totalValue",
+//     percentage: (100 * (totalValue - totalInvestment)) / totalInvestment,
+//     //continue here. should show the Total Holdings for each day
+//     chartData: [
+//       { name: "Sun", totalValue: 400 },
+//       { name: "Mon", totalValue: 600 },
+//       { name: "Tue", totalValue: 500 },
+//       { name: "Wed", totalValue: 700 },
+//       { name: "Thu", totalValue: 400 },
+//       { name: "Fri", totalValue: 500 },
+//       { name: "Sat", totalValue: 450 },
+//     ],
+//   };
+// };

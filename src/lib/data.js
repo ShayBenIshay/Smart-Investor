@@ -1,6 +1,8 @@
-import { Transaction, User } from "./models";
+import { Portfolio, Transaction, User } from "./models";
 import { connectToDb } from "./utils";
 import { unstable_noStore as noStore } from "next/cache";
+import { auth } from "@/auth";
+import { aggregateTransactions, addCurrentPrices } from "@/lib/action";
 
 export const getUser = async (id) => {
   noStore();
@@ -58,10 +60,11 @@ export const getTransactions = async () => {
   }
 };
 
-export const getUserTransactions = async (id) => {
+export const getUserTransactions = async () => {
   try {
+    const session = await auth();
     connectToDb();
-    const transactions = await Transaction.find({ userId: id });
+    const transactions = await Transaction.find({ userId: session?.user?.id });
     const transformedTransactions = transactions.map((transaction) => {
       const transactionObj = transaction.toObject();
       return {
@@ -81,8 +84,46 @@ export const getUserTransactions = async (id) => {
   }
 };
 
+export const getPortfolioTransactions = async () => {
+  try {
+    const session = await auth();
+    connectToDb();
+    const portfolio = await Portfolio.findOne({ userId: session?.user?.id })
+      .populate("transactions")
+      .exec();
+    const transactions = portfolio?.transactions;
+    const stockAggregation = await aggregateTransactions(transactions);
+    const stocks = await addCurrentPrices(stockAggregation);
+    return Object.values(stocks);
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to fetch Portfolio transactions!");
+  }
+};
+
 export const getWallet = async (id) => {
-  connectToDb();
-  const user = await User.findById(id);
-  return user.wallet;
+  try {
+    const session = await auth();
+    connectToDb();
+    const user = await User.findById(session?.user?.id);
+    return user.wallet;
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to fetch Wallet!");
+  }
+};
+
+export const updateWallet = async (newLiquid) => {
+  try {
+    const session = await auth();
+    connectToDb();
+    return await User.findByIdAndUpdate(
+      session?.user?.id,
+      { $set: { wallet: newLiquid } },
+      { new: true }
+    );
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to fetch Wallet!");
+  }
 };

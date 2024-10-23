@@ -57,10 +57,10 @@ const transactionSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    buy: {
-      type: Boolean,
+    operation: {
+      type: String,
       required: true,
-      default: true,
+      default: "buy",
     },
     papers: {
       type: Number,
