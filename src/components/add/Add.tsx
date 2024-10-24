@@ -45,6 +45,10 @@ const Add = (props: Props) => {
     setSymbol(e.target.value);
   };
 
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPrice(Number(e.target.value));
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     props.setOpen(false);
   };
@@ -81,7 +85,11 @@ const Add = (props: Props) => {
                   placeholder={input.placeholder}
                   value={input.name === "price" && price ? price : undefined}
                   onChange={
-                    input.name === "ticker" ? handleTickerChange : undefined
+                    input.name === "ticker"
+                      ? handleTickerChange
+                      : input.name === "price"
+                      ? handlePriceChange
+                      : undefined
                   }
                 />
               )}
