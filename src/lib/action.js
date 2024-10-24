@@ -9,6 +9,7 @@ import { getWallet, updateWallet } from "./data";
 import { fetchLastClosingPrice, fetchPriceFromPolygon } from "./polygonApi";
 import { v4 as uuidv4 } from "uuid";
 import { getCachedPrice, savePriceToCache } from "./cache";
+import { changeWallet } from "./walletService";
 
 export const addUser = async (prevState, formData) => {
   const { firstName, lastName, email, password, img, isAdmin } =
@@ -40,7 +41,7 @@ export const deleteUser = async (id) => {
   try {
     connectToDb();
     await User.findByIdAndDelete(id);
-    console.log("deleted from db");
+    console.log("deleted user from db");
     revalidatePath("/admin/users");
   } catch (err) {
     console.log(err);
@@ -91,12 +92,21 @@ export const addTransaction = async (prevState, formData) => {
 };
 
 export const deleteTransaction = async (id) => {
-  console.log("deleting", id);
-
   try {
     connectToDb();
+    const transaction = await Transaction.findById(id);
+    if (!transaction) {
+      return { error: "Transaction not found" };
+    }
+    const { price, papers } = transaction;
+    console.log("price", price);
+    console.log("papers", papers);
+
+    const assetValue = (price * papers).toString();
+    const operation = transaction.operation === "buy" ? "deposit" : "withdraw";
     await Transaction.findByIdAndDelete(id);
-    console.log("deleted from db");
+    // console.log("deleted from db", transaction);
+    console.log(await changeWallet(assetValue, operation));
     revalidatePath("/admin/transactions");
   } catch (err) {
     console.log(err);

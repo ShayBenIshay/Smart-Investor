@@ -1,49 +1,39 @@
 "use client";
 
 import { useState } from "react";
+import { changeWallet } from "../../lib/walletService";
 
 const Wallet = ({ liquid: initialLiquid }) => {
   const [liquid, setLiquid] = useState(initialLiquid);
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState();
 
-  const handleTransaction = async (operation) => {
+  const handleDeposit = async () => {
     try {
-      const res = await fetch("/api/wallet", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ amount, operation }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to update wallet");
-      }
-
-      const data = await res.json();
-      setLiquid(data.wallet);
+      const updatedWallet = await changeWallet(amount, "deposit");
+      setLiquid(updatedWallet);
     } catch (error) {
-      console.error(error);
-      alert("Transaction failed");
+      alert("Deposit failed");
     }
+    setAmount();
   };
 
-  const handleDeposit = () => {
-    handleTransaction("deposit");
-  };
-
-  const handleWithdrawal = () => {
+  const handleWithdrawal = async () => {
     if (amount > liquid) {
       alert("Insufficient funds!");
-    } else {
-      handleTransaction("withdraw");
     }
+    try {
+      const updatedWallet = await changeWallet(amount, "withdraw");
+      setLiquid(updatedWallet);
+    } catch (error) {
+      alert("Withdrawal failed");
+    }
+    setAmount();
   };
 
   return (
     <div>
       <h1>Your Wallet</h1>
-      <p>{`Liquid: $${liquid}`}</p>
+      <p>{`Liquid: $${liquid.toFixed(2)}`}</p>
       <input
         type="number"
         value={amount}

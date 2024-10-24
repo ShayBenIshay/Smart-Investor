@@ -10,6 +10,17 @@ type Props = {
 };
 
 const DataTable = (props: Props) => {
+  const formattedRows = props.rows.map((row) => {
+    const newRow = { ...row };
+    Object.keys(newRow).forEach((key) => {
+      const value = newRow[key];
+      if (typeof value === "number") {
+        newRow[key] = Number.isInteger(value) ? value : value.toFixed(2);
+      }
+    });
+    return newRow;
+  });
+
   const handleDelete = async (id: number) => {
     await props.mutation(id);
   };
@@ -34,7 +45,7 @@ const DataTable = (props: Props) => {
     <div className="dataTable">
       <DataGrid
         className="dataGrid"
-        rows={props.rows}
+        rows={formattedRows}
         columns={
           props.slug === "portfolio"
             ? [...props.columns]
