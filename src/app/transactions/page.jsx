@@ -7,6 +7,8 @@ export const metadata = {
   description: "Create New Transaction | Check Transactions History",
 };
 
+export const dynamic = "force-dynamic";
+
 const TransactionsPage = async () => {
   const transactions = await getUserTransactions();
 

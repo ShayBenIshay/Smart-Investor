@@ -26,6 +26,8 @@ const pieChart = (stocks, totalValue) => {
   }));
 };
 
+export const dynamic = "force-dynamic";
+
 const PortfolioPage = async () => {
   const stocksArr = await getPortfolioTransactions();
 
