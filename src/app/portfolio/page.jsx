@@ -19,14 +19,15 @@ const pieChart = (stocks, totalValue) => {
 
   return stocks.map((stock, index) => ({
     name: stock.ticker,
-    value: parseFloat(((100 * stock.totalInvestment) / totalValue).toFixed(2)),
+    value: parseFloat(
+      ((100 * stock.totalShares * stock.currentPrice) / totalValue).toFixed(2)
+    ),
     color: colors[index % colors.length],
   }));
 };
 
 const PortfolioPage = async () => {
   const stocksArr = await getPortfolioTransactions();
-  console.log(stocksArr);
 
   const totals = stocksArr.reduce(
     (acc, stock) => {

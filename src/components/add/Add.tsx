@@ -22,7 +22,7 @@ type Props = {
     prevState: any,
     formData: FormData
   ) => Promise<void | { error: string }>;
-  onDateChange?: (date: Date, symbol: string) => Promise<any>;
+  onDateChange?: (symbol: string, date: string) => Promise<any>;
 };
 
 const Add = (props: Props) => {
@@ -34,9 +34,9 @@ const Add = (props: Props) => {
 
   const handleDateChange = async (date: Date, symbol: string) => {
     setSelectedDate(date);
+    const dateOnly = date.toISOString().split("T")[0];
     if (props.onDateChange && symbol) {
-      const price = await props.onDateChange(date, symbol);
-      console.log(price);
+      const price = await props.onDateChange(symbol, dateOnly);
       setPrice(price);
     }
   };

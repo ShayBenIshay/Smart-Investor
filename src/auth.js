@@ -80,7 +80,7 @@ export const {
 
       await dbUser.save();
 
-      if (!(await Portfolio.findOne({ user: dbUser._id }))) {
+      if (!(await Portfolio.findOne({ userId: dbUser._id }))) {
         const newPortfolio = new Portfolio({
           userId: dbUser._id,
           portfolioName: `${dbUser.firstName}'s Portfolio`,

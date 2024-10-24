@@ -31,7 +31,8 @@
     "src/app/api/auth/[...nextauth].js",
     "src/app/api/wallet/route.js",
     "src/app/Providers.jsx",
-    "src/lib/polygonApi.js"
+    "src/lib/polygonApi.js",
+    "src/lib/cache.js"
   ],
   "exclude": ["node_modules"]
 }

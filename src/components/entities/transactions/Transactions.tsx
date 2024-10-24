@@ -8,6 +8,7 @@ import { GridColDef } from "@mui/x-data-grid";
 import { addTransaction, deleteTransaction } from "@/lib/action";
 import { transactionFormInput } from "@/data/forms";
 import { fetchPriceFromPolygon } from "@/lib/polygonApi";
+import { getCachedPrice, savePriceToCache } from "@/lib/cache";
 
 const columns: GridColDef[] = [
   {
@@ -48,11 +49,23 @@ const columns: GridColDef[] = [
   },
 ];
 
+type TickerPriceResponse = number | null;
+
 const Transactions = ({ transactions }) => {
   const [open, setOpen] = useState(false);
 
-  const handleDateChange = async (date: Date, symbol: string) => {
+  const handleDateChange = async (
+    symbol: string,
+    date: string
+  ): Promise<TickerPriceResponse> => {
+    const cachedPrice: number | null = await getCachedPrice(symbol, date);
+    if (cachedPrice) {
+      return cachedPrice;
+    }
+
     const fetchedPrice = await fetchPriceFromPolygon(date, symbol);
+
+    await savePriceToCache(symbol, fetchedPrice, date);
     return fetchedPrice;
   };
 

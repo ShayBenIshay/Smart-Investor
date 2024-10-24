@@ -2,12 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { Transaction, User, Portfolio } from "./models";
-import { connectToDb } from "./utils";
+import { connectToDb, getLastTradingDate } from "./utils";
 import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
 import { getWallet, updateWallet } from "./data";
 import { fetchLastClosingPrice, fetchPriceFromPolygon } from "./polygonApi";
 import { v4 as uuidv4 } from "uuid";
+import { getCachedPrice, savePriceToCache } from "./cache";
 
 export const addUser = async (prevState, formData) => {
   const { firstName, lastName, email, password, img, isAdmin } =
@@ -137,9 +138,18 @@ export const aggregateTransactions = (transactions) => {
 };
 
 export const addCurrentPrices = async (stockAggregation) => {
+  const date = getLastTradingDate();
+  const dateOnly = date.toISOString().split("T")[0];
   for (const stock of Object.values(stockAggregation)) {
     try {
-      stock.currentPrice = await fetchLastClosingPrice(stock.ticker);
+      const cachedPrice = await getCachedPrice(stock.ticker, dateOnly);
+      if (cachedPrice !== null) {
+        stock.currentPrice = cachedPrice;
+      } else {
+        const price = await fetchLastClosingPrice(stock.ticker);
+        stock.currentPrice = price;
+        await savePriceToCache(stock.ticker, price, dateOnly);
+      }
       stock.change = stock.currentPrice - stock.averagePrice;
       stock.unrealizedPL =
         (stock.currentPrice - stock.averagePrice) * stock.totalShares;

@@ -5,16 +5,24 @@ import styles from "./links.module.css";
 import NavLink from "./navLink/NavLink";
 import Image from "next/image";
 import { doLogout } from "@/app/actions";
+import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 const links = [
   { title: "Homepage", path: "/" },
   { title: "About", path: "/about" },
-  { title: "Portfolio", path: "/portfolio" },
-  { title: "Transactions", path: "/transactions" },
 ];
 
 const Links = ({ session }) => {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    const result = await signOut({ redirect: false });
+    router.push("/");
+    router.refresh();
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.links}>
@@ -26,12 +34,12 @@ const Links = ({ session }) => {
             {session.user?.isAdmin && (
               <NavLink item={{ title: "Admin", path: "/admin" }} />
             )}
+            <NavLink item={{ title: "Portfolio", path: "/portfolio" }} />
+            <NavLink item={{ title: "Transactions", path: "/transactions" }} />
             <NavLink item={{ title: "My Page", path: "/user" }} />
-            <form action={doLogout}>
-              <button className={styles.logout} type="submit">
-                Logout
-              </button>
-            </form>
+            <button onClick={handleLogout} className={styles.logout}>
+              Logout
+            </button>
           </>
         ) : (
           <NavLink item={{ title: "Login", path: "/login" }} />

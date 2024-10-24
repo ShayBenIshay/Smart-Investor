@@ -89,6 +89,14 @@ const portfolioSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+const priceCacheSchema = new mongoose.Schema({
+  ticker: { type: String, required: true },
+  lastClosePrice: { type: Number, required: true },
+  fetchedAt: { type: String, required: true },
+});
+
+export const PriceCache =
+  mongoose.models?.PriceCache || mongoose.model("PriceCache", priceCacheSchema);
 export const User = mongoose.models?.User || mongoose.model("User", userSchema);
 export const Transaction =
   mongoose.models?.Transaction ||
