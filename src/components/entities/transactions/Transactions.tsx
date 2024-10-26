@@ -7,8 +7,7 @@ import Add from "../../add/Add";
 import { GridColDef } from "@mui/x-data-grid";
 import { addTransaction, deleteTransaction } from "@/lib/action";
 import { transactionFormInput } from "@/data/forms";
-import { fetchPriceFromPolygon } from "@/lib/polygonApi";
-import { getCachedPrice, savePriceToCache } from "@/lib/cache";
+import { getCachedPrice } from "@/lib/cache";
 
 const columns: GridColDef[] = [
   {
@@ -63,10 +62,20 @@ const Transactions = ({ transactions }) => {
       return cachedPrice;
     }
 
-    const fetchedPrice = await fetchPriceFromPolygon(date, symbol);
-
-    await savePriceToCache(symbol, fetchedPrice, date);
-    return fetchedPrice;
+    try {
+      const response = await fetch(
+        `/api/fetchPolygonClosePrice?symbol=${symbol}&date=${date}&user=true`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch close price");
+      }
+      const data = await response.json();
+      const fetchedPrice = data.close;
+      return fetchedPrice;
+    } catch (error) {
+      console.error("Error fetching price:", error);
+      return null; // Handle errors appropriately in your application
+    }
   };
 
   return (

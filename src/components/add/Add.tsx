@@ -2,10 +2,11 @@
 
 import "./add.scss";
 import { useFormState } from "react-dom";
-
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useState } from "react";
+import { formatDate } from "@/lib/utils";
+import { subDays, isToday } from "date-fns";
 
 type FormInput = {
   label: string;
@@ -28,13 +29,17 @@ type Props = {
 const Add = (props: Props) => {
   const [state, formAction] = useFormState(props.mutation, undefined);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  4;
   const [price, setPrice] = useState<number | null>(null);
   const [symbol, setSymbol] = useState<string>("");
 
   const handleDateChange = async (date: Date, symbol: string) => {
     setSelectedDate(date);
-    const dateOnly = date.toISOString().split("T")[0];
+
+    if (isToday(date)) {
+      date = subDays(date, 1);
+    }
+
+    const dateOnly = formatDate(date);
     if (props.onDateChange && symbol) {
       const price = await props.onDateChange(symbol, dateOnly);
       setPrice(price);

@@ -1,8 +1,11 @@
 import { Portfolio, Transaction, User } from "./models";
-import { connectToDb } from "./utils";
+import { connectToDb, isTradingDay } from "./utils";
 import { unstable_noStore as noStore } from "next/cache";
 import { auth } from "@/auth";
 import { aggregateTransactions, addCurrentPrices } from "@/lib/action";
+import { addToQueue } from "./PolygonCallsQueue";
+import { subDays } from "date-fns";
+import { getCachedPrice, savePriceToCache } from "./cache";
 
 export const getUser = async (id) => {
   noStore();
@@ -84,7 +87,7 @@ export const getUserTransactions = async () => {
   }
 };
 
-export const getPortfolioTransactions = async () => {
+export const buildPortfolio = async () => {
   try {
     const session = await auth();
     connectToDb();
@@ -93,7 +96,7 @@ export const getPortfolioTransactions = async () => {
       .exec();
     const transactions = portfolio?.transactions;
     const stockAggregation = await aggregateTransactions(transactions);
-    const stocks = await addCurrentPrices(stockAggregation);
+    const stocks = await addCurrentPrices(stockAggregation, "high");
     return Object.values(stocks);
   } catch (err) {
     console.log(err);
@@ -126,4 +129,38 @@ export const updateWallet = async (newLiquid) => {
     console.log(err);
     throw new Error("Failed to fetch Wallet!");
   }
+};
+
+export async function fetchHistoricalPrices(ticker) {
+  let tradingDaysProcessed = 0;
+  let daysChecked = 0;
+
+  while (tradingDaysProcessed < 7) {
+    const date = subDays(new Date(), daysChecked + 1);
+    if (isTradingDay(date)) {
+      const dateOnly = date.toISOString().split("T")[0];
+
+      const cachedPrice = await getCachedPrice(ticker, dateOnly);
+      if (!cachedPrice) {
+        createClosePriceApiCall(ticker, dateOnly).then((closePrice) => {
+          savePriceToCache(ticker, closePrice, dateOnly);
+        });
+      }
+
+      tradingDaysProcessed += 1;
+    }
+    daysChecked += 1;
+  }
+}
+
+export const createClosePriceApiCall = async (ticker, dateOnly) => {
+  const apiCall = async () => {
+    const response = await fetch(
+      `https://api.polygon.io/v1/open-close/${ticker}/${dateOnly}?apiKey=${process.env.POLYGON_API_KEY}`
+    );
+    const data = await response.json();
+    return data?.close;
+  };
+  const closePrice = await addToQueue(apiCall, "low");
+  return closePrice;
 };

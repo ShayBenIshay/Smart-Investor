@@ -1,6 +1,7 @@
 "use server";
 
 import { PriceCache } from "./models";
+import { connectToDb } from "./utils";
 
 export async function getCachedPrice(
   ticker: string,
@@ -21,6 +22,7 @@ export async function savePriceToCache(
   date: string
 ) {
   try {
+    connectToDb();
     const newCache = new PriceCache({
       ticker,
       lastClosePrice,

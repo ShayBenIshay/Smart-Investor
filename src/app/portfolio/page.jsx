@@ -7,7 +7,7 @@ import BigChartBox from "@/components/charts/bigChartBox/BigChartBox";
 
 import "./portfolio.scss";
 import PortfolioTable from "@/components/portfolio/PortfolioTable";
-import { getPortfolioTransactions } from "@/lib/data";
+import { buildPortfolio } from "@/lib/data";
 
 export const metadata = {
   title: "Portfolio",
@@ -29,7 +29,7 @@ const pieChart = (stocks, totalValue) => {
 export const dynamic = "force-dynamic";
 
 const PortfolioPage = async () => {
-  const stocksArr = await getPortfolioTransactions();
+  const stocksArr = await buildPortfolio();
 
   const totals = stocksArr.reduce(
     (acc, stock) => {
