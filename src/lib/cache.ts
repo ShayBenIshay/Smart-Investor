@@ -8,8 +8,11 @@ export async function getCachedPrice(
   date: String
 ): Promise<number | null> {
   try {
-    const cachedPrice = await PriceCache.findOne({ ticker, fetchedAt: date });
-    return cachedPrice ? cachedPrice.lastClosePrice : null;
+    const cachedDoc = await PriceCache.findOne({
+      ticker,
+    });
+    const cachedPrice = cachedDoc?.prices?.find((price) => price.date === date);
+    return cachedPrice ? cachedPrice.closePrice : null;
   } catch (error) {
     console.error(`Error fetching cached price for ${ticker}:`, error);
     return null;
@@ -18,18 +21,39 @@ export async function getCachedPrice(
 
 export async function savePriceToCache(
   ticker: string,
-  lastClosePrice: number,
+  closePrice: number,
   date: string
 ) {
   try {
     connectToDb();
-    const newCache = new PriceCache({
-      ticker,
-      lastClosePrice,
-      fetchedAt: date,
-    });
-    await newCache.save();
-    console.log("newCache", newCache);
+
+    const existingCache = await PriceCache.findOne({ ticker });
+
+    const isDateExists = existingCache?.prices?.find(
+      (cache) => cache.date === date
+    );
+
+    if (isDateExists) {
+      console.log(
+        `Price for ${ticker} on ${date} already exists. No changes made.`
+      );
+      return;
+    }
+
+    const updatedCache = await PriceCache.findOneAndUpdate(
+      { ticker },
+      {
+        $push: {
+          prices: { date: date, closePrice: closePrice },
+        },
+      },
+      {
+        upsert: true,
+        new: true,
+      }
+    );
+
+    console.log("updatedCache", updatedCache);
   } catch (error) {
     console.error(`Error saving price to cache for ${ticker}:`, error);
   }

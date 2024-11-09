@@ -21,8 +21,6 @@ const TransactionsPage = async () => {
     return transaction;
   });
 
-  console.log(processedTransactions);
-
   return <Transactions transactions={transactions} />;
 };
 

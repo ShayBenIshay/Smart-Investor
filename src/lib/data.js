@@ -103,8 +103,6 @@ export const buildPortfolio = async (session) => {
       )
     );
     const stocks = await addCurrentPrices(filteredStocks, "high");
-    console.log("transactions transactions transactions transactions ");
-    console.log(stocks);
     return Object.values(stocks);
   } catch (err) {
     console.log(err);
@@ -117,8 +115,6 @@ export const getWallet = async () => {
     const session = await auth();
     connectToDb();
     const user = await User.findById(session?.user?.id);
-    console.log("user user user user user user ");
-    console.log(user);
     return user.wallet;
   } catch (err) {
     console.log(err);
@@ -128,15 +124,8 @@ export const getWallet = async () => {
 
 export const updateWallet = async (newLiquid) => {
   try {
-    console.log(
-      "update wallet update wallet update wallet update wallet update wallet "
-    );
     const session = await auth();
-    console.log(session);
     connectToDb();
-    console.log(
-      "connected to DB connected to DB connected to DB connected to DB connected to DB "
-    );
 
     return await User.findByIdAndUpdate(
       session?.user?.id,

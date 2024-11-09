@@ -90,10 +90,17 @@ const portfolioSchema = new mongoose.Schema(
 );
 
 const priceCacheSchema = new mongoose.Schema({
-  ticker: { type: String, required: true },
-  lastClosePrice: { type: Number, required: true },
-  fetchedAt: { type: String, required: true },
+  ticker: { type: String, required: true, unique: true },
+  prices: [
+    {
+      date: { type: String, required: true },
+      closePrice: { type: Number, required: true },
+    },
+  ],
 });
+
+// Index for quick querying by ticker
+priceCacheSchema.index({ ticker: 1 });
 
 export const PriceCache =
   mongoose.models?.PriceCache || mongoose.model("PriceCache", priceCacheSchema);

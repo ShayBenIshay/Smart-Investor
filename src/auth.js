@@ -108,7 +108,6 @@ export const {
         session.user.isAdmin = token.isAdmin;
         session.user.lastLogin = token.previousLogin;
       }
-      console.log(session);
 
       return session;
     },
