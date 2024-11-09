@@ -2,18 +2,35 @@
 import styles from "./navbar.module.css";
 import Link from "next/link";
 import Links from "./links/Links";
-import { useSession } from "next-auth/react";
+import { useEffect, useRef, useState } from "react";
 
 const Navbar = () => {
-  const { data: session } = useSession();
+  const [mobileMenu, setMobileMenu] = useState(false);
+  const toggleMenu = () => {
+    setMobileMenu(!mobileMenu);
+  };
+
+  const handleClickOutside = (event) => {
+    if (navbar.current && !navbar.current.contains(event.target)) {
+      setMobileMenu(false);
+    }
+  };
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const navbar = useRef();
 
   return (
-    <div className={styles.container}>
+    <div id="navbar" ref={navbar} className={styles.navbar}>
       <Link href="/" className={styles.logo}>
         Smart Investor
       </Link>
-      <div>
-        <Links session={session} />
+      <div className={styles.linksContainer}>
+        <Links />
       </div>
     </div>
   );

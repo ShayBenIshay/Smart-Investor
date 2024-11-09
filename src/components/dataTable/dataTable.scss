@@ -1,29 +1,37 @@
-.dataTable{
-
-  .dataGrid{
+.dataTable {
+  .dataGrid {
     background: white;
     padding: 20px;
-
-    .MuiDataGrid-toolbarContainer{
+    .MuiDataGrid-cell {
+      text-align: left;
+    }
+    .MuiDataGrid-toolbarContainer {
       flex-direction: row-reverse;
     }
 
-    img{
+    img {
       width: 32px;
       height: 32px;
       border-radius: 50%;
       object-fit: cover;
     }
 
-    .action{
+    .action {
       display: flex;
       gap: 15px;
+      align-items: center;
+      padding: 15px 0px;
 
-      img{
+      img {
         width: 20px;
         height: 20px;
         cursor: pointer;
       }
+    }
+    .delete {
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
   }
 }

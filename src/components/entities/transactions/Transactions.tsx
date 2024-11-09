@@ -31,14 +31,14 @@ const columns: GridColDef[] = [
   {
     field: "papers",
     headerName: "Papers",
-    type: "string",
+    type: "number",
     width: 90,
   },
   {
     field: "operation",
     headerName: "Operation",
     width: 90,
-    type: "boolean",
+    type: "string",
   },
   {
     field: "createdAt",
@@ -74,7 +74,7 @@ const Transactions = ({ transactions }) => {
       return fetchedPrice;
     } catch (error) {
       console.error("Error fetching price:", error);
-      return null; // Handle errors appropriately in your application
+      return null;
     }
   };
 

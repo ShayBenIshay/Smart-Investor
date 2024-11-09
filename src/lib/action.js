@@ -107,9 +107,11 @@ export const deleteTransaction = async (id) => {
 
     const assetValue = (price * papers).toString();
     const operation = transaction.operation === "buy" ? "deposit" : "withdraw";
+    const res = await changeWallet(assetValue, operation);
+    console.log(res);
     await Transaction.findByIdAndDelete(id);
-    // console.log("deleted from db", transaction);
-    console.log(await changeWallet(assetValue, operation));
+    console.log("deleted from db", transaction);
+
     revalidatePath("/admin/transactions");
   } catch (err) {
     console.log(err);

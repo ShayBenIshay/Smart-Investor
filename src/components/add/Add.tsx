@@ -77,11 +77,13 @@ const Add = (props: Props) => {
                 </select>
               ) : input.element === "datePicker" ? (
                 <DatePicker
+                  className="date"
                   name={input.name}
                   selected={selectedDate}
                   onChange={(date: Date) => handleDateChange(date, symbol)}
                   dateFormat="dd/MM/yyyy"
                   placeholderText={input.placeholder}
+                  autoComplete="off"
                 />
               ) : (
                 <input
@@ -89,6 +91,7 @@ const Add = (props: Props) => {
                   name={input.name}
                   placeholder={input.placeholder}
                   value={input.name === "price" && price ? price : undefined}
+                  autoComplete={input.name === "price" ? "off" : "on"}
                   onChange={
                     input.name === "ticker"
                       ? handleTickerChange
@@ -100,7 +103,7 @@ const Add = (props: Props) => {
               )}
             </div>
           ))}
-          <button>Send</button>
+          <button className="send-button">Send</button>
           {state?.error}
         </form>
       </div>

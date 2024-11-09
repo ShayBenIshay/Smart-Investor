@@ -26,15 +26,16 @@
   gap: 20px;
 }
 
-.button {
+.transactionsButton,
+.portfolioButton {
   padding: 20px;
-  min-width: 120px;
+  min-width: 150px;
   cursor: pointer;
   border: none;
   border-radius: 5px;
 }
 
-.button:first-child {
+.transactionsButton {
   background-color: var(--btn);
   color: var(--text);
 }

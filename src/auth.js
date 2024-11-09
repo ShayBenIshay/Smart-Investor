@@ -102,15 +102,13 @@ export const {
       return token;
     },
     async session({ session, token }) {
-      //check this what is token.sub?
-      // if (token?.sub) {
-      //   session.user.id = token.sub; // Use the token's sub property to store user ID in the session
-      // }
       if (token) {
         session.user.id = token.id;
+        session.user.email = token.email;
         session.user.isAdmin = token.isAdmin;
         session.user.lastLogin = token.previousLogin;
       }
+      console.log(session);
 
       return session;
     },

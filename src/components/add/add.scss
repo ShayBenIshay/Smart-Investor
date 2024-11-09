@@ -49,18 +49,88 @@
         }
 
         input {
+          width: 100%;
           padding: 10px;
           background-color: transparent;
           color: white;
           outline: none;
           border: 1px solid $soft-color;
           border-radius: 3px;
+          cursor: pointer;
+        }
+        input:focus {
+          cursor: text;
+        }
+        select {
+          background-color: inherit;
+          color: white;
+        }
+        select option {
+          background-color: $main-bg;
+          color: white;
+        }
+
+        .react-datepicker {
+          background-color: #2b2d42;
+          border: 1px solid #8d99ae;
+          border-radius: 8px;
+          padding: 10px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .react-datepicker__header {
+          background-color: #3d405b;
+          border-bottom: 1px solid #8d99ae;
+          color: #edf2f4;
+          padding: 10px;
+          border-top-left-radius: 8px;
+          border-top-right-radius: 8px;
+        }
+
+        .react-datepicker__day-name {
+          color: #edf2f4;
+          font-weight: bold;
+        }
+
+        .react-datepicker__day {
+          color: #8d99ae;
+        }
+
+        .react-datepicker__day:hover {
+          background-color: #3d405b;
+          color: #edf2f4;
+          border-radius: 50%;
+        }
+
+        .react-datepicker__day--selected,
+        .react-datepicker__day--keyboard-selected {
+          background-color: blue;
+          color: #edf2f4;
+          border-radius: 50%;
+          border: solid;
+        }
+
+        .react-datepicker__navigation--previous,
+        .react-datepicker__navigation--next {
+          top: 10px;
+          border: 0.45rem solid #8d99ae;
+          border-radius: 50%;
+        }
+
+        .react-datepicker__navigation--previous:hover,
+        .react-datepicker__navigation--next:hover {
+          border-color: blue;
         }
       }
-      button {
+      .send-button {
         width: 100%;
-        padding: 10px;
+        padding: 15px 20px;
         cursor: pointer;
+        background-color: var(--btn);
+        color: var(--textColor);
+        font-weight: bold;
+        border: none;
+        border-radius: 5px;
       }
     }
   }

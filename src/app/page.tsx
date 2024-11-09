@@ -12,20 +12,31 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <div className={styles.textContainer}>
-        {/* <p>{`Last Login: ${session?.user?.}`}</p> */}
+        <p>
+          {session &&
+            `Last Login: ${session?.user?.lastLogin
+              ?.split("T")[0]
+              .split("-")
+              .reverse()
+              .join("/")}`}
+        </p>
         <h1 className={styles.title}>Smart Investor</h1>
         <h2 className={styles.subtitle}>Welcome {session?.user?.name}</h2>
         <p className={styles.desc}>How can Smart Investor help you today?</p>
         <div className={styles.buttons}>
           <a href="/transactions">
-            <button className={styles.button}>Create Transaction</button>
+            <button className={styles.transactionsButton}>
+              Create Transaction
+            </button>
           </a>
-          <button
-            className={styles.button}
-            onClick={() => router.push("/portfolio")}
-          >
-            View Portfolio
-          </button>
+          <a href="/portfolio">
+            <button
+              className={styles.portfolioButton}
+              onClick={() => router.push("/portfolio")}
+            >
+              View Portfolio
+            </button>
+          </a>
         </div>
       </div>
       <div className={styles.imgContainer}>

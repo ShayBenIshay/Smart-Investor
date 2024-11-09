@@ -14,6 +14,8 @@ interface PieChartBoxProps {
 }
 
 const PieChartBox: React.FC<PieChartBoxProps> = ({ data }) => {
+  console.log("data data data data data data data ");
+  console.log(data);
   return (
     <div className="pieChartBox">
       <h1>Holdings</h1>

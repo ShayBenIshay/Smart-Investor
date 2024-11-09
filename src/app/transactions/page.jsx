@@ -1,4 +1,3 @@
-import styles from "./transactions.module.css";
 import { getUserTransactions } from "@/lib/data";
 import Transactions from "@/components/entities/transactions/Transactions";
 
@@ -11,6 +10,18 @@ export const dynamic = "force-dynamic";
 
 const TransactionsPage = async () => {
   const transactions = await getUserTransactions();
+
+  const processedTransactions = transactions.map((transaction) => {
+    const formattedDate = transaction.createdAt
+      .split("T")[0]
+      .split("-")
+      .reverse()
+      .join("/");
+    transaction.createdAt = formattedDate;
+    return transaction;
+  });
+
+  console.log(processedTransactions);
 
   return <Transactions transactions={transactions} />;
 };

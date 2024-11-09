@@ -1,3 +1,5 @@
+"use server";
+
 import { Portfolio, Transaction, User } from "./models";
 import { connectToDb, isTradingDay } from "./utils";
 import { unstable_noStore as noStore } from "next/cache";
@@ -87,16 +89,22 @@ export const getUserTransactions = async () => {
   }
 };
 
-export const buildPortfolio = async () => {
+export const buildPortfolio = async (session) => {
   try {
-    const session = await auth();
     connectToDb();
     const portfolio = await Portfolio.findOne({ userId: session?.user?.id })
       .populate("transactions")
       .exec();
     const transactions = portfolio?.transactions;
     const stockAggregation = await aggregateTransactions(transactions);
-    const stocks = await addCurrentPrices(stockAggregation, "high");
+    const filteredStocks = Object.fromEntries(
+      Object.entries(stockAggregation).filter(
+        ([key, stock]) => stock.totalShares > 0
+      )
+    );
+    const stocks = await addCurrentPrices(filteredStocks, "high");
+    console.log("transactions transactions transactions transactions ");
+    console.log(stocks);
     return Object.values(stocks);
   } catch (err) {
     console.log(err);
@@ -104,11 +112,13 @@ export const buildPortfolio = async () => {
   }
 };
 
-export const getWallet = async (id) => {
+export const getWallet = async () => {
   try {
     const session = await auth();
     connectToDb();
     const user = await User.findById(session?.user?.id);
+    console.log("user user user user user user ");
+    console.log(user);
     return user.wallet;
   } catch (err) {
     console.log(err);
@@ -118,8 +128,16 @@ export const getWallet = async (id) => {
 
 export const updateWallet = async (newLiquid) => {
   try {
+    console.log(
+      "update wallet update wallet update wallet update wallet update wallet "
+    );
     const session = await auth();
+    console.log(session);
     connectToDb();
+    console.log(
+      "connected to DB connected to DB connected to DB connected to DB connected to DB "
+    );
+
     return await User.findByIdAndUpdate(
       session?.user?.id,
       { $set: { wallet: newLiquid } },

@@ -5,7 +5,7 @@ import { doSocialLogin } from "@/app/actions/index";
 
 const LoginForm = () => {
   return (
-    <form action={doSocialLogin}>
+    <form className={styles.form} action={doSocialLogin}>
       <button
         className={styles.google}
         type="submit"

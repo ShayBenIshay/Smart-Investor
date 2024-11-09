@@ -1,0 +1,45 @@
+.walletContainer {
+  align-items: start;
+  background-color: #1a1a2e;
+  color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  margin: 0 auto;
+}
+
+.walletContainer input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 2px solid #333;
+  border-radius: 5px;
+  margin-right: 5px;
+  font-size: 1em;
+  color: #000;
+  outline: none;
+}
+
+.buttonContiner {
+  padding-top: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.deposit,
+.withdraw {
+  width: 48.5%;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.deposit {
+  background-color: #4caf50;
+}
+.withdraw {
+  background-color: #ff4136;
+}

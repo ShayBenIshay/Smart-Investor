@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { changeWallet } from "../../lib/walletService";
+import styles from "./wallet.module.css";
 
 const Wallet = ({ liquid: initialLiquid }) => {
   const [liquid, setLiquid] = useState(initialLiquid);
@@ -14,7 +15,8 @@ const Wallet = ({ liquid: initialLiquid }) => {
     } catch (error) {
       alert("Deposit failed");
     }
-    setAmount();
+    console.log("setting amount");
+    setAmount(0);
   };
 
   const handleWithdrawal = async () => {
@@ -27,21 +29,30 @@ const Wallet = ({ liquid: initialLiquid }) => {
     } catch (error) {
       alert("Withdrawal failed");
     }
-    setAmount();
+    console.log("setting amount");
+    setAmount(0);
   };
 
   return (
-    <div>
-      <h1>Your Wallet</h1>
-      <p>{`Liquid: $${liquid.toFixed(2)}`}</p>
+    <div className={styles.walletContainer}>
+      <h2>Your Wallet</h2>
+      <p>{`Liquid: $${
+        Number.isInteger(liquid) ? liquid : liquid.toFixed(2)
+      }`}</p>
       <input
         type="number"
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
         placeholder="Enter amount"
       />
-      <button onClick={handleDeposit}>Deposit</button>
-      <button onClick={handleWithdrawal}>Withdraw</button>
+      <div className={styles.buttonContiner}>
+        <button className={styles.deposit} onClick={handleDeposit}>
+          Deposit
+        </button>
+        <button className={styles.withdraw} onClick={handleWithdrawal}>
+          Withdraw
+        </button>
+      </div>
     </div>
   );
 };

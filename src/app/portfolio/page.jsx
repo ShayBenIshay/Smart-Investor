@@ -1,35 +1,41 @@
 import PieChartBox from "@/components/charts/pieCartBox/PieChartBox";
-// import ChartBox from "@/components/charts/chartBox/ChartBox";
-// import BarChartBox from "@/components/charts/barChartBox/BarChartBox";
 import BigChartBox from "@/components/charts/bigChartBox/BigChartBox";
-// import { barChartBoxRevenue } from "@/data/barChartBoxData";
-// import { chartBoxRevenue, chartBoxPortfolioValue } from "@/data/chartBoxData";
 
 import "./portfolio.scss";
 import PortfolioTable from "@/components/portfolio/PortfolioTable";
-import { buildPortfolio } from "@/lib/data";
+import { buildPortfolio, getWallet } from "@/lib/data";
+import { auth } from "@/auth";
 
 export const metadata = {
   title: "Portfolio",
   description: "Portfolio page",
 };
 
-const pieChart = (stocks, totalValue) => {
+const pieChart = (wallet, stocks, totalValue) => {
   const colors = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
-
-  return stocks.map((stock, index) => ({
+  const stockData = stocks.map((stock, index) => ({
     name: stock.ticker,
     value: parseFloat(
       ((100 * stock.totalShares * stock.currentPrice) / totalValue).toFixed(2)
     ),
     color: colors[index % colors.length],
   }));
+
+  stockData.push({
+    name: "Liquid",
+    value: ((100 * wallet) / totalValue).toFixed(2),
+    color: colors[stockData.length % colors.length],
+  });
+
+  return stockData;
 };
 
 export const dynamic = "force-dynamic";
 
 const PortfolioPage = async () => {
-  const stocksArr = await buildPortfolio();
+  const session = await auth();
+  const wallet = await getWallet();
+  const stocksArr = await buildPortfolio(session);
 
   const totals = stocksArr.reduce(
     (acc, stock) => {
@@ -44,18 +50,13 @@ const PortfolioPage = async () => {
     <div>
       <div className="graphs">
         <div className="box box4">
-          <PieChartBox data={pieChart(stocksArr, totals.totalValue)} />
+          <PieChartBox
+            data={pieChart(wallet, stocksArr, totals.totalValue + wallet)}
+          />
         </div>
         <div className="box box7">
           <BigChartBox stocks={stocksArr} />
         </div>
-        {/* <div className="box box2">
-          <ChartBox {...chartBoxPortfolioValue} />
-        </div> */}
-
-        {/* <div className="box box9">
-          <BarChartBox {...barChartBoxRevenue} />
-        </div> */}
       </div>
       <div className="box10">
         <PortfolioTable stocks={stocksArr} />
@@ -65,32 +66,3 @@ const PortfolioPage = async () => {
 };
 
 export default PortfolioPage;
-
-{
-  /* <div className="box box2">
-          <ChartBox
-            {...chartBoxPerformance(totals.totalValue, totals.totalInvestment)}
-          />
-        </div> */
-}
-
-// const chartBoxPerformance = (totalValue, totalInvestment) => {
-//   return {
-//     color: "teal",
-//     icon: "/revenueIcon.svg",
-//     title: "Total Holdings",
-//     number: totalValue,
-//     dataKey: "totalValue",
-//     percentage: (100 * (totalValue - totalInvestment)) / totalInvestment,
-//     //continue here. should show the Total Holdings for each day
-//     chartData: [
-//       { name: "Sun", totalValue: 400 },
-//       { name: "Mon", totalValue: 600 },
-//       { name: "Tue", totalValue: 500 },
-//       { name: "Wed", totalValue: 700 },
-//       { name: "Thu", totalValue: 400 },
-//       { name: "Fri", totalValue: 500 },
-//       { name: "Sat", totalValue: 450 },
-//     ],
-//   };
-// };

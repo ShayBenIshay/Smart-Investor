@@ -10,7 +10,6 @@ export async function POST(req) {
   if (!session) {
     return new Response("Unauthorized", { status: 401 });
   }
-
   const { amount, operation } = await req.json();
 
   if (!amount || !operation) {

@@ -13,7 +13,6 @@ class PolygonCallsQueue {
   addToQueue(apiCall, priority = "low") {
     return new Promise((resolve, reject) => {
       this.queue.push({ apiCall, priority, resolve, reject });
-      //   console.log("Current queue length:", this.queue.length);
       this.processQueue();
     });
   }
