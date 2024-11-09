@@ -3,9 +3,11 @@ import { User } from "@/lib/models";
 import { connectToDb } from "@/lib/utils";
 
 export async function POST(req) {
-  await connectToDb();
-
   const session = await auth();
+
+  console.log("session session session session session session ");
+  console.log(session);
+  await connectToDb();
 
   if (!session) {
     return new Response("Unauthorized", { status: 401 });

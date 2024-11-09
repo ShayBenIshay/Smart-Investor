@@ -122,14 +122,14 @@ export const getWallet = async () => {
   }
 };
 
-export const updateWallet = async (newLiquid) => {
+export const updateWallet = async (diff) => {
   try {
     const session = await auth();
     connectToDb();
 
     return await User.findByIdAndUpdate(
       session?.user?.id,
-      { $set: { wallet: newLiquid } },
+      { $inc: { wallet: diff } },
       { new: true }
     );
   } catch (err) {

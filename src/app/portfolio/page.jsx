@@ -12,7 +12,23 @@ export const metadata = {
 };
 
 const pieChart = (wallet, stocks, totalValue) => {
-  const colors = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+  const colors = [
+    "#0088FE",
+    "#00C49F",
+    "#FFBB28",
+    "#FF8042",
+    "#A28CF5",
+    "#FF6666",
+    "#FF5C93",
+    "#00B8D9",
+    "#FFC400",
+    "#36B37E",
+    "#AAB2BD",
+    "#FCF876",
+    "#B07D62",
+    "#8E8CD8",
+    "#FF9A76",
+  ];
   const stockData = stocks.map((stock, index) => ({
     name: stock.ticker,
     value: parseFloat(
@@ -23,7 +39,7 @@ const pieChart = (wallet, stocks, totalValue) => {
 
   stockData.push({
     name: "Liquid",
-    value: ((100 * wallet) / totalValue).toFixed(2),
+    value: parseFloat(((100 * wallet) / totalValue).toFixed(2)),
     color: colors[stockData.length % colors.length],
   });
 

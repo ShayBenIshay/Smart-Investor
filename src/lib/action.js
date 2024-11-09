@@ -8,7 +8,7 @@ import { auth } from "@/auth";
 import { getWallet, updateWallet } from "./data";
 import { v4 as uuidv4 } from "uuid";
 import { getCachedPrice, savePriceToCache } from "./cache";
-import { changeWallet } from "./walletService";
+// import { changeWallet } from "./walletService";
 import { addToQueue } from "./PolygonCallsQueue";
 import { fetchHistoricalPrices } from "./data";
 
@@ -57,14 +57,13 @@ export const addTransaction = async (prevState, formData) => {
   try {
     connectToDb();
     const liquid = await getWallet();
-    const assetValue = operation === "buy" ? price * papers : -price * papers;
-    const newLiquid = liquid - assetValue;
-    if (newLiquid < 0) {
+    const asset = operation === "buy" ? -price * papers : price * papers;
+    if (liquid + asset < 0) {
       return {
         error: "Insufficient funds. You cannot proceed with the transaction.",
       };
     }
-    const updatedUser = updateWallet(newLiquid);
+    const updatedUser = updateWallet(asset);
 
     const newTransaction = new Transaction({
       userId: session?.user?.id,
@@ -106,8 +105,9 @@ export const deleteTransaction = async (id) => {
     console.log("papers", papers);
 
     const assetValue = (price * papers).toString();
-    const operation = transaction.operation === "buy" ? "deposit" : "withdraw";
-    const res = await changeWallet(assetValue, operation);
+    const res = await updateWallet(
+      transaction.operation === "buy" ? assetValue : -assetValue
+    );
     console.log(res);
     await Transaction.findByIdAndDelete(id);
     console.log("deleted from db", transaction);
