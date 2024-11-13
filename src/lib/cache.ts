@@ -24,6 +24,11 @@ export async function savePriceToCache(
   closePrice: number,
   date: string
 ) {
+  if (!ticker || !closePrice || !date)
+    throw Error(
+      `error saving price to cache. ticker & price & date are required`
+    );
+
   try {
     connectToDb();
 
@@ -52,6 +57,6 @@ export async function savePriceToCache(
 
     console.log("updatedCache", updatedCache);
   } catch (error) {
-    console.error(`Error saving price to cache for ${ticker}:`, error);
+    throw Error(`Error saving price to cache for ${ticker}:`, error);
   }
 }

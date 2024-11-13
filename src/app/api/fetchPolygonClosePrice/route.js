@@ -16,11 +16,11 @@ export async function GET(req) {
     const response = await fetch(
       `https://api.polygon.io/v1/open-close/${symbol}/${date}?apiKey=${apiKey}`
     );
-    if (!response.ok) {
+    const data = await response.json();
+
+    if (!response.ok || !data?.close) {
       throw new Error(`Error fetching data: ${response.statusText}`);
     }
-
-    const data = await response.json();
 
     await savePriceToCache(symbol, data.close, date);
     return NextResponse.json({ close: data.close }, { status: 200 });
