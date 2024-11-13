@@ -26,7 +26,7 @@ type Props = {
     prevState: any,
     formData: FormData
   ) => Promise<void | { error: string }>;
-  queue: MyQueue;
+  queue?: MyQueue;
   onDateChange?: (symbol: string, date: string) => Promise<any>;
 };
 
