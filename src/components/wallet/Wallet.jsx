@@ -15,7 +15,6 @@ const Wallet = ({ liquid: initialLiquid }) => {
     } catch (error) {
       alert("Deposit failed");
     }
-    console.log("setting amount");
     setAmount(0);
   };
 
@@ -29,7 +28,6 @@ const Wallet = ({ liquid: initialLiquid }) => {
     } catch (error) {
       alert("Withdrawal failed");
     }
-    console.log("setting amount");
     setAmount(0);
   };
 

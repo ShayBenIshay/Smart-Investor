@@ -7,6 +7,9 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useState } from "react";
 import { formatDate } from "@/lib/utils";
 import { subDays, isToday } from "date-fns";
+import MyQueue from "../queue/Queue";
+import { isTradingDay } from "@/lib/utils";
+import { getCachedPrice } from "@/lib/cache";
 
 type FormInput = {
   label: string;
@@ -23,6 +26,7 @@ type Props = {
     prevState: any,
     formData: FormData
   ) => Promise<void | { error: string }>;
+  queue: MyQueue;
   onDateChange?: (symbol: string, date: string) => Promise<any>;
 };
 
@@ -55,6 +59,26 @@ const Add = (props: Props) => {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    if (props.slug === "transaction") {
+      const queue = MyQueue.getInstance();
+      let tradingDaysProcessed = 0;
+      let daysChecked = 0;
+
+      while (tradingDaysProcessed < 7) {
+        const date = subDays(new Date(), daysChecked + 1);
+        if (isTradingDay(date)) {
+          const dateOnly = date.toISOString().split("T")[0];
+
+          const cachedPrice = await getCachedPrice(symbol, dateOnly);
+          if (!cachedPrice) {
+            queue.addToQueue(symbol, dateOnly, "low");
+          }
+
+          tradingDaysProcessed += 1;
+        }
+        daysChecked += 1;
+      }
+    }
     props.setOpen(false);
   };
 

@@ -34,9 +34,6 @@ export async function savePriceToCache(
     );
 
     if (isDateExists) {
-      console.log(
-        `Price for ${ticker} on ${date} already exists. No changes made.`
-      );
       return;
     }
 

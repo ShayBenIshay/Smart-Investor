@@ -59,7 +59,7 @@ const data = [
 const BigChartBox = ({ stocks }) => {
   return (
     <div className="bigChartBox">
-      <h1>Holdings Over 7 days</h1>
+      <h1>Holdings Over 7 (trading) days</h1>
       <div className="chart">
         <ResponsiveContainer width="99%" height="100%">
           <AreaChart

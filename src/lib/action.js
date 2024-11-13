@@ -8,9 +8,6 @@ import { auth } from "@/auth";
 import { getWallet, updateWallet } from "./data";
 import { v4 as uuidv4 } from "uuid";
 import { getCachedPrice, savePriceToCache } from "./cache";
-// import { changeWallet } from "./walletService";
-import { addToQueue } from "./PolygonCallsQueue";
-import { fetchHistoricalPrices } from "./data";
 
 export const addUser = async (prevState, formData) => {
   const { firstName, lastName, email, password, img, isAdmin } =
@@ -83,8 +80,6 @@ export const addTransaction = async (prevState, formData) => {
 
     await portfolio.save();
     console.log("Updated Portfolio:", portfolio);
-
-    fetchHistoricalPrices(ticker);
 
     revalidatePath("/admin/transactions");
   } catch (err) {
@@ -161,17 +156,13 @@ export const addCurrentPrices = async (stockAggregation, priority) => {
       if (cachedPrice !== null) {
         stock.currentPrice = cachedPrice;
       } else {
-        const apiCall = async () => {
-          const response = await fetch(
-            `https://api.polygon.io/v1/open-close/${stock.ticker}/${dateOnly}?apiKey=${process.env.POLYGON_API_KEY}`
-          );
-          const data = await response.json();
-          return data?.close;
-        };
+        const response = await fetch(
+          `https://api.polygon.io/v1/open-close/${stock.ticker}/${dateOnly}?apiKey=${process.env.POLYGON_API_KEY}`
+        );
+        const data = await response.json();
 
-        const price = await addToQueue(apiCall, priority);
-        stock.currentPrice = price;
-        await savePriceToCache(stock.ticker, price, dateOnly);
+        stock.currentPrice = data?.close;
+        await savePriceToCache(stock.ticker, stock.currentPrice, dateOnly);
       }
       stock.change = stock.currentPrice - stock.averagePrice;
       stock.unrealizedPL =

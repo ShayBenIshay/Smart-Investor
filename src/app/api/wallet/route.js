@@ -5,8 +5,6 @@ import { connectToDb } from "@/lib/utils";
 export async function POST(req) {
   const session = await auth();
 
-  console.log("session session session session session session ");
-  console.log(session);
   await connectToDb();
 
   if (!session) {
