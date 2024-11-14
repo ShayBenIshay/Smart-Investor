@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { subDays, isToday } from "date-fns";
 
 const connection = {};
 
@@ -31,6 +32,22 @@ export const getLastTradingDate = () => {
 export const isTradingDay = (date) => {
   const day = date.getDay();
   return day !== 0 && day !== 6;
+};
+
+export const getTradingDates = (days) => {
+  const tradingDates = [];
+  let tradingDaysProcessed = 0;
+  let daysChecked = 0;
+  while (tradingDaysProcessed < days) {
+    const date = subDays(new Date(), daysChecked + 1);
+    if (isTradingDay(date)) {
+      const dateOnly = date.toISOString().split("T")[0];
+      tradingDates.push(dateOnly);
+      tradingDaysProcessed += 1;
+    }
+    daysChecked += 1;
+  }
+  return tradingDates.reverse();
 };
 
 export const formatDate = (date) => {

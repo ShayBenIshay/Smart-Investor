@@ -42,7 +42,7 @@ export default function Home() {
       <div className={styles.imgContainer}>
         <Image
           src="/hero.gif"
-          alt=""
+          alt="Hero gif"
           fill
           className={styles.heroImg}
           unoptimized={true}

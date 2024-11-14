@@ -8,7 +8,7 @@ import { useState } from "react";
 import { formatDate } from "@/lib/utils";
 import { subDays, isToday } from "date-fns";
 import MyQueue from "../queue/Queue";
-import { isTradingDay } from "@/lib/utils";
+import { getTradingDates } from "@/lib/utils";
 import { getCachedPrice } from "@/lib/cache";
 
 type FormInput = {
@@ -33,7 +33,7 @@ type Props = {
 const Add = (props: Props) => {
   const [state, formAction] = useFormState(props.mutation, undefined);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [price, setPrice] = useState<number | null>(null);
+  const [price, setPrice] = useState<number | null>();
   const [symbol, setSymbol] = useState<string>("");
 
   const handleDateChange = async (date: Date, symbol: string) => {
@@ -59,27 +59,19 @@ const Add = (props: Props) => {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    props.setOpen(false);
     if (props.slug === "transaction") {
       const queue = MyQueue.getInstance();
-      let tradingDaysProcessed = 0;
-      let daysChecked = 0;
 
-      while (tradingDaysProcessed < 7) {
-        const date = subDays(new Date(), daysChecked + 1);
-        if (isTradingDay(date)) {
-          const dateOnly = date.toISOString().split("T")[0];
+      const tradingDates = getTradingDates(7);
 
-          const cachedPrice = await getCachedPrice(symbol, dateOnly);
-          if (!cachedPrice) {
-            queue.addToQueue(symbol, dateOnly, "low");
-          }
-
-          tradingDaysProcessed += 1;
+      tradingDates.map(async (tradingDate) => {
+        const cachedPrice = await getCachedPrice(symbol, tradingDate);
+        if (!cachedPrice) {
+          queue.addToQueue(symbol, tradingDate, "low");
         }
-        daysChecked += 1;
-      }
+      });
     }
-    props.setOpen(false);
   };
 
   return (
