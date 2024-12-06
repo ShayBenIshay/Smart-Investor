@@ -12,14 +12,6 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <div className={styles.textContainer}>
-        {/* <p>
-          {session &&
-            `Last Login: ${session?.user?.lastLogin
-              ?.split("T")[0]
-              .split("-")
-              .reverse()
-              .join("/")}`}
-        </p> */}
         <h1 className={styles.title}>Smart Investor</h1>
         <h2 className={styles.subtitle}>Welcome {session?.user?.name}</h2>
         <p className={styles.desc}>How can Smart Investor help you today?</p>
