@@ -7,7 +7,9 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useState } from "react";
 import { formatDate } from "@/lib/utils";
 import { subDays, isToday } from "date-fns";
-import MyQueue from "../queue/Queue";
+// import MyQueue from "../queue/Queue";
+import { getThrottlerInstance } from "@/lib/throttler.js";
+// import Throttler from "@/lib/throttler.js";
 import { getTradingDates } from "@/lib/utils";
 import { getCachedPrice } from "@/lib/cache";
 
@@ -26,7 +28,7 @@ type Props = {
     prevState: any,
     formData: FormData
   ) => Promise<void | { error: string }>;
-  queue?: MyQueue;
+  // queue?: Throttler;
   onDateChange?: (symbol: string, date: string) => Promise<any>;
 };
 
@@ -61,14 +63,15 @@ const Add = (props: Props) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     props.setOpen(false);
     if (props.slug === "transaction") {
-      const queue = MyQueue.getInstance();
-
+      // const queue = MyQueue.getInstance();
+      const throttler = getThrottlerInstance();
       const tradingDates = getTradingDates(7);
 
       tradingDates.map(async (tradingDate) => {
         const cachedPrice = await getCachedPrice(symbol, tradingDate);
         if (!cachedPrice) {
-          queue.addToQueue(symbol, tradingDate, "low");
+          // queue.addToQueue(symbol, tradingDate, "low");
+          throttler.enqueue(symbol, tradingDate, "user");
         }
       });
     }

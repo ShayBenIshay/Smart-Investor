@@ -8,7 +8,7 @@ import { GridColDef } from "@mui/x-data-grid";
 import { addTransaction, deleteTransaction } from "@/lib/action";
 import { transactionFormInput } from "@/data/forms";
 import { getCachedPrice } from "@/lib/cache";
-import MyQueue from "@/components/queue/Queue";
+// import MyQueue from "@/components/queue/Queue";
 
 const columns: GridColDef[] = [
   {
@@ -78,7 +78,7 @@ const Transactions = ({ transactions }) => {
       return null;
     }
   };
-  const queue = MyQueue.getInstance();
+  // const queue = MyQueue.getInstance();
   return (
     <div className="transactions">
       <div className="info">
@@ -97,7 +97,7 @@ const Transactions = ({ transactions }) => {
           formInput={transactionFormInput}
           setOpen={setOpen}
           mutation={addTransaction}
-          queue={queue}
+          // queue={queue}
           onDateChange={handleDateChange}
         />
       )}
