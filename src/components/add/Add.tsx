@@ -7,9 +7,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useState } from "react";
 import { formatDate } from "@/lib/utils";
 import { subDays, isToday } from "date-fns";
-// import MyQueue from "../queue/Queue";
-import { getThrottlerInstance } from "@/lib/throttler.js";
-// import Throttler from "@/lib/throttler.js";
 import { getTradingDates } from "@/lib/utils";
 import { getCachedPrice } from "@/lib/cache";
 
@@ -28,7 +25,6 @@ type Props = {
     prevState: any,
     formData: FormData
   ) => Promise<void | { error: string }>;
-  // queue?: Throttler;
   onDateChange?: (symbol: string, date: string) => Promise<any>;
 };
 
@@ -63,15 +59,29 @@ const Add = (props: Props) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     props.setOpen(false);
     if (props.slug === "transaction") {
-      // const queue = MyQueue.getInstance();
-      const throttler = getThrottlerInstance();
       const tradingDates = getTradingDates(7);
 
       tradingDates.map(async (tradingDate) => {
         const cachedPrice = await getCachedPrice(symbol, tradingDate);
         if (!cachedPrice) {
-          // queue.addToQueue(symbol, tradingDate, "low");
-          throttler.enqueue(symbol, tradingDate, "user");
+          try {
+            const response = await fetch("/api/polygonApi", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ symbol, date: tradingDate }),
+            });
+
+            if (!response.ok) {
+              throw new Error(`Error: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log("API call added to queue:", result);
+          } catch (error) {
+            console.error("Failed to add API call to queue:", error);
+          }
         }
       });
     }

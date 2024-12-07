@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import { User } from "@/lib/models";
 import { connectToDb } from "@/lib/utils";
 

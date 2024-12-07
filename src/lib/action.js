@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { Transaction, User, Portfolio } from "./models";
 import { connectToDb, getLastTradingDate } from "./utils";
 import bcrypt from "bcryptjs";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import { getWallet, updateWallet } from "./data";
 import { v4 as uuidv4 } from "uuid";
 import { getCachedPrice, savePriceToCache } from "./cache";

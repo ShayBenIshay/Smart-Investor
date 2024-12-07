@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import "./transactions.scss";
-import DataTable from "../../dataTable/DataTable";
+import DataTable from "../../../components/portfolio/dataTable/DataTable";
 import Add from "../../add/Add";
 import { GridColDef } from "@mui/x-data-grid";
 import { addTransaction, deleteTransaction } from "@/lib/action";
-import { transactionFormInput } from "@/data/forms";
+import { transactionFormInput } from "@/lib/forms";
 import { getCachedPrice } from "@/lib/cache";
-// import MyQueue from "@/components/queue/Queue";
 
 const columns: GridColDef[] = [
   {

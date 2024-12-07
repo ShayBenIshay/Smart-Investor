@@ -1,13 +1,13 @@
-import PieChartBox from "@/components/charts/pieCartBox/PieChartBox";
-import BigChartBox from "@/components/charts/bigChartBox/BigChartBox";
+import PieChartBox from "@/components/portfolio/charts/pieCartBox/PieChartBox";
+import BigChartBox from "@/components/portfolio/charts/bigChartBox/BigChartBox";
 
 import "./portfolio.scss";
-import PortfolioTable from "@/components/portfolio/PortfolioTable";
+import PortfolioTable from "@/components/portfolio/Table/PortfolioTable";
 import { buildPortfolio, getWallet } from "@/lib/data";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import { getTradingDates } from "@/lib/utils";
 import { getCachedPrice } from "@/lib/cache";
-import { fetchPriceFromPolygon } from "@/lib/polygonApi";
+// import { fetchPriceFromPolygon } from "@/lib/polygonApi";
 
 export const metadata = {
   title: "Portfolio",
@@ -79,7 +79,9 @@ const PortfolioPage = async () => {
       let dateValue = await getCachedPrice(ticker, date);
       //if dateValue is 0 / undefined go fetch it.
       if (!dateValue) {
-        dateValue = await fetchPriceFromPolygon(ticker, date);
+        // dateValue = await fetchPriceFromPolygon(ticker, date);
+        // return;
+        continue;
       }
 
       if (dateValue !== undefined) {

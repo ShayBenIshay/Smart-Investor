@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { changeWallet } from "../../lib/walletService";
+import { changeWallet } from "../../../lib/walletService";
 import styles from "./wallet.module.css";
 
 const Wallet = ({ liquid: initialLiquid }) => {

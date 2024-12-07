@@ -3,7 +3,7 @@
 import { Portfolio, Transaction, User } from "./models";
 import { connectToDb } from "./utils";
 import { unstable_noStore as noStore } from "next/cache";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import { aggregateTransactions, addCurrentPrices } from "@/lib/action";
 
 export const getUser = async (id) => {

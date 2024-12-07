@@ -55,7 +55,7 @@ export async function savePriceToCache(
       }
     );
 
-    console.log("updatedCache", updatedCache);
+    // console.log("updatedCache", updatedCache);
   } catch (error) {
     throw Error(`Error saving price to cache for ${ticker}:`, error);
   }

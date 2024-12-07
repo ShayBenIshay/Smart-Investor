@@ -1,8 +1,9 @@
 "use server";
 
-import Wallet from "../../components/wallet/Wallet";
+// import Wallet from "../../components/wallet/Wallet";
+import Wallet from "@/components/portfolio/wallet/Wallet";
 import { User } from "@/lib/models";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import { connectToDb } from "@/lib/utils";
 
 const UserPage = async () => {
