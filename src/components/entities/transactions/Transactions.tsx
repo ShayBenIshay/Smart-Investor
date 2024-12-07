@@ -84,21 +84,6 @@ const Transactions = ({ transactions }) => {
     }
   };
 
-  // try {
-  //   const response = await fetch(
-  //     `/api/fetchPolygonClosePrice?symbol=${symbol}&date=${date}&user=true`
-  //   );
-  //   if (!response.ok) {
-  //     throw new Error("Failed to fetch close price");
-  //   }
-  //   const data = await response.json();
-  //   const fetchedPrice = data.close;
-  //   return fetchedPrice;
-  // } catch (error) {
-  //   console.error("Error fetching price:", error);
-  //   return null;
-  // }
-
   return (
     <div className="transactions">
       <div className="info">
@@ -117,7 +102,6 @@ const Transactions = ({ transactions }) => {
           formInput={transactionFormInput}
           setOpen={setOpen}
           mutation={addTransaction}
-          // queue={queue}
           onDateChange={handleDateChange}
         />
       )}

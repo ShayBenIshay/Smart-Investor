@@ -64,23 +64,20 @@ const Add = (props: Props) => {
       tradingDates.map(async (tradingDate) => {
         const cachedPrice = await getCachedPrice(symbol, tradingDate);
         if (!cachedPrice) {
+          console.log(
+            "adding to throttle     adding to throttle     adding to throttle     adding to throttle     "
+          );
           try {
-            const response = await fetch("/api/polygonApi", {
+            fetch("/api/polygonApi", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({ symbol, date: tradingDate }),
             });
-
-            if (!response.ok) {
-              throw new Error(`Error: ${response.status}`);
-            }
-
-            const result = await response.json();
-            console.log("API call added to queue:", result);
           } catch (error) {
-            console.error("Failed to add API call to queue:", error);
+            console.log("error   error   error   error   error   error   ");
+            console.log(error);
           }
         }
       });

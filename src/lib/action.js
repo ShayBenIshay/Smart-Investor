@@ -8,6 +8,7 @@ import { auth } from "@/lib/auth";
 import { getWallet, updateWallet } from "./data";
 import { v4 as uuidv4 } from "uuid";
 import { getCachedPrice, savePriceToCache } from "./cache";
+import enqueue from "../lib/throttle.js";
 
 export const addUser = async (prevState, formData) => {
   const { firstName, lastName, email, password, img, isAdmin } =
@@ -156,13 +157,13 @@ export const addCurrentPrices = async (stockAggregation, priority) => {
       if (cachedPrice !== null) {
         stock.currentPrice = cachedPrice;
       } else {
-        const response = await fetch(
-          `https://api.polygon.io/v1/open-close/${stock.ticker}/${dateOnly}?apiKey=${process.env.POLYGON_API_KEY}`
-        );
-        const data = await response.json();
-
-        stock.currentPrice = data?.close;
-        await savePriceToCache(stock.ticker, stock.currentPrice, dateOnly);
+        try {
+          const data = await enqueue(symbol, date, priority);
+          stock.currentPrice = data?.close;
+          await savePriceToCache(stock.ticker, stock.currentPrice, dateOnly);
+        } catch (error) {
+          console.error("Error in API Call", error);
+        }
       }
       stock.change = stock.currentPrice - stock.averagePrice;
       stock.unrealizedPL =

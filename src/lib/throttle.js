@@ -30,12 +30,13 @@ class Throttle {
     return new Promise((resolve, reject) => {
       const apiCall = async () => {
         const url = `https://api.polygon.io/v1/open-close/${symbol}/${tradingDate}?apiKey=${this.apiKey}`;
-        console.log(`Executing API call to: ${url}`);
         try {
           const response = await fetch(url);
 
           if (!response.ok) {
             throw new Error(`API call failed: ${response.statusText}`);
+            // console.error(`API call failed: ${response.statusText}`);
+            // return { close: 0 };
           }
 
           const data = await response.json();
@@ -46,7 +47,6 @@ class Throttle {
           console.log("Saved price to cache successfully.");
           resolve(data);
         } catch (error) {
-          console.error("Error in API call:", error);
           reject(error);
         }
       };

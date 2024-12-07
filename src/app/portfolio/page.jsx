@@ -84,7 +84,7 @@ const PortfolioPage = async () => {
           const data = await enqueue(ticker, date, "user");
           dateValue = data?.close;
         } catch (error) {
-          console.error("Failed to add API call to queue:", error);
+          dateValue = 0;
         }
       }
       if (dateValue !== undefined) {
