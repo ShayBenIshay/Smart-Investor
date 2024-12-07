@@ -15,10 +15,9 @@ class Throttle {
 
   resetRateLimit() {
     const intervalId = setInterval(() => {
-      console.log("Resetting rate limit...");
-      console.log(this.callQueue.length);
-      this.callCount = 0;
       if (this.callQueue.length > 0) {
+        console.log("Resetting rate limit...");
+        this.callCount = 0;
         this.processQueue();
       } else {
         console.log("No pending calls. Clearing interval...");
@@ -42,14 +41,13 @@ class Throttle {
           const data = await response.json();
           console.log("API Response:", data);
 
-          // Save to cache
           await savePriceToCache(symbol, data.close, tradingDate);
 
           console.log("Saved price to cache successfully.");
-          resolve(data); // Resolve the Promise with the API response
+          resolve(data);
         } catch (error) {
           console.error("Error in API call:", error);
-          reject(error); // Reject the Promise with the error
+          reject(error);
         }
       };
 
@@ -74,7 +72,6 @@ class Throttle {
     ) {
       const { apiCall } = this.callQueue.shift();
 
-      console.log(this.callQueue.length);
       this.callCount++;
       await apiCall();
     }

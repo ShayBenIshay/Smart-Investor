@@ -7,6 +7,7 @@ import { buildPortfolio, getWallet } from "@/lib/data";
 import { auth } from "@/lib/auth";
 import { getTradingDates } from "@/lib/utils";
 import { getCachedPrice } from "@/lib/cache";
+import enqueue from "../../lib/throttle.js";
 // import { fetchPriceFromPolygon } from "@/lib/polygonApi";
 
 export const metadata = {
@@ -77,13 +78,15 @@ const PortfolioPage = async () => {
       const { ticker, totalShares } = tickerInfo;
 
       let dateValue = await getCachedPrice(ticker, date);
-      //if dateValue is 0 / undefined go fetch it.
-      if (!dateValue) {
-        // dateValue = await fetchPriceFromPolygon(ticker, date);
-        // return;
-        continue;
-      }
 
+      if (!dateValue) {
+        try {
+          const data = await enqueue(ticker, date, "user");
+          dateValue = data?.close;
+        } catch (error) {
+          console.error("Failed to add API call to queue:", error);
+        }
+      }
       if (dateValue !== undefined) {
         dateEntry[ticker] = (totalShares * dateValue).toFixed(2);
       }
