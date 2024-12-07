@@ -14,40 +14,55 @@ class Throttle {
   }
 
   resetRateLimit() {
-    setInterval(() => {
+    const intervalId = setInterval(() => {
       console.log("Resetting rate limit...");
+      console.log(this.callQueue.length);
       this.callCount = 0;
-      this.processQueue();
+      if (this.callQueue.length > 0) {
+        this.processQueue();
+      } else {
+        console.log("No pending calls. Clearing interval...");
+        clearInterval(intervalId);
+      }
     }, 60000);
   }
 
-  async enqueue(symbol, tradingDate, priority = "system") {
-    const apiCall = async () => {
-      const url = `https://api.polygon.io/v1/open-close/${symbol}/${tradingDate}?apiKey=${this.apiKey}`;
-      console.log(`Executing API call to: ${url}`);
-      try {
-        const response = await fetch(url);
+  enqueue(symbol, tradingDate, priority = "system") {
+    return new Promise((resolve, reject) => {
+      const apiCall = async () => {
+        const url = `https://api.polygon.io/v1/open-close/${symbol}/${tradingDate}?apiKey=${this.apiKey}`;
+        console.log(`Executing API call to: ${url}`);
+        try {
+          const response = await fetch(url);
 
-        if (!response.ok) {
-          throw new Error(`API call failed: ${response.statusText}`);
+          if (!response.ok) {
+            throw new Error(`API call failed: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          console.log("API Response:", data);
+
+          // Save to cache
+          await savePriceToCache(symbol, data.close, tradingDate);
+
+          console.log("Saved price to cache successfully.");
+          resolve(data); // Resolve the Promise with the API response
+        } catch (error) {
+          console.error("Error in API call:", error);
+          reject(error); // Reject the Promise with the error
         }
-        const data = await response.json();
-        console.log("API Response:", data);
-        await savePriceToCache(symbol, data.close, tradingDate);
-        console.log(
-          "saved price to cache   saved price to cache   saved price to cache   saved price to cache   "
-        );
-      } catch (error) {
-        console.error("Error in API call:", error);
+      };
+
+      const callData = { apiCall, priority };
+
+      if (priority === "user") {
+        this.callQueue.unshift(callData);
+      } else {
+        this.callQueue.push(callData);
       }
-    };
-    const callData = { apiCall, priority };
-    if (priority === "user") {
-      this.callQueue.unshift(callData);
-    } else {
-      this.callQueue.push(callData);
-    }
-    this.processQueue();
+
+      this.processQueue();
+    });
   }
 
   async processQueue() {
@@ -59,6 +74,7 @@ class Throttle {
     ) {
       const { apiCall } = this.callQueue.shift();
 
+      console.log(this.callQueue.length);
       this.callCount++;
       await apiCall();
     }
@@ -66,6 +82,6 @@ class Throttle {
     this.isRunning = false;
   }
 }
-const throttle = new Throttle(4);
+const throttle = new Throttle(5);
 
 export default throttle.enqueue.bind(throttle);

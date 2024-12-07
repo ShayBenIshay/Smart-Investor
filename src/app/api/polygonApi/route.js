@@ -10,8 +10,8 @@ export async function POST(req) {
     );
   }
   try {
-    enqueue(symbol, date, priority);
-    return NextResponse.json({}, { status: 200 });
+    const data = await enqueue(symbol, date, priority);
+    return NextResponse.json({ close: data?.close }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to fetch stock data." },

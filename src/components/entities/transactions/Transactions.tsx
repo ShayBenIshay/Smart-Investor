@@ -48,36 +48,57 @@ const columns: GridColDef[] = [
   },
 ];
 
-type TickerPriceResponse = number | null;
-
+interface TickerPriceResponse {
+  close: number;
+}
 const Transactions = ({ transactions }) => {
   const [open, setOpen] = useState(false);
 
   const handleDateChange = async (
     symbol: string,
     date: string
-  ): Promise<TickerPriceResponse> => {
+  ): Promise<TickerPriceResponse | null> => {
     const cachedPrice: number | null = await getCachedPrice(symbol, date);
     if (cachedPrice) {
-      return cachedPrice;
+      return { close: cachedPrice };
     }
 
     try {
-      const response = await fetch(
-        `/api/fetchPolygonClosePrice?symbol=${symbol}&date=${date}&user=true`
-      );
+      const response = await fetch("/api/polygonApi", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ symbol, date }),
+      });
+
       if (!response.ok) {
-        throw new Error("Failed to fetch close price");
+        throw new Error(`Error: ${response.status}`);
       }
-      const data = await response.json();
-      const fetchedPrice = data.close;
-      return fetchedPrice;
+      const result = await response.json();
+      console.log("API call added to queue:", result);
+      return result;
     } catch (error) {
-      console.error("Error fetching price:", error);
-      return null;
+      console.error("Failed to add API call to queue:", error);
+      throw Error("Failed to add API call to queue:", error);
     }
   };
-  // const queue = MyQueue.getInstance();
+
+  // try {
+  //   const response = await fetch(
+  //     `/api/fetchPolygonClosePrice?symbol=${symbol}&date=${date}&user=true`
+  //   );
+  //   if (!response.ok) {
+  //     throw new Error("Failed to fetch close price");
+  //   }
+  //   const data = await response.json();
+  //   const fetchedPrice = data.close;
+  //   return fetchedPrice;
+  // } catch (error) {
+  //   console.error("Error fetching price:", error);
+  //   return null;
+  // }
+
   return (
     <div className="transactions">
       <div className="info">

@@ -44,7 +44,7 @@ const Add = (props: Props) => {
     const dateOnly = formatDate(date);
     if (props.onDateChange && symbol) {
       const price = await props.onDateChange(symbol, dateOnly);
-      setPrice(price);
+      setPrice(price.close);
     }
   };
 
