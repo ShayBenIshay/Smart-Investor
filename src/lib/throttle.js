@@ -27,8 +27,6 @@ class Throttle {
   }
 
   enqueue(ticker, date, priority = "system") {
-    console.log("enqueue     enqueue     enqueue     ");
-    console.log(this.apiKey);
     return new Promise((resolve, reject) => {
       const apiCall = async () => {
         const url = `https://api.polygon.io/v1/open-close/${ticker}/${date}?apiKey=${this.apiKey}`;
