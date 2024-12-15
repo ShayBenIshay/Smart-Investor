@@ -16,6 +16,9 @@ const Wallet = ({ liquid: initialLiquid }) => {
   app.configure(authentication());
 
   const handleDeposit = async () => {
+    const deposit = Number(amount);
+    setAmount(0);
+
     const { user } = await app.reAuthenticate();
     const queryResponse = await app.service("portfolio").find({
       query: {
@@ -24,7 +27,7 @@ const Wallet = ({ liquid: initialLiquid }) => {
     });
     const portfolio = queryResponse.data[0];
     try {
-      const updatedWallet = portfolio.cash + Number(amount);
+      const updatedWallet = portfolio.cash + deposit;
       await app
         .service("portfolio")
         .patch(portfolio._id, { cash: updatedWallet });
@@ -32,10 +35,12 @@ const Wallet = ({ liquid: initialLiquid }) => {
     } catch (error) {
       alert("Deposit failed");
     }
-    setAmount(0);
   };
 
   const handleWithdrawal = async () => {
+    const withdrawal = Number(amount);
+    setAmount(0);
+
     const { user } = await app.reAuthenticate();
     const queryResponse = await app.service("portfolio").find({
       query: {
@@ -49,7 +54,7 @@ const Wallet = ({ liquid: initialLiquid }) => {
     }
 
     try {
-      const updatedWallet = portfolio.cash - Number(amount);
+      const updatedWallet = portfolio.cash - withdrawal;
       await app
         .service("portfolio")
         .patch(portfolio._id, { cash: updatedWallet });
@@ -58,7 +63,6 @@ const Wallet = ({ liquid: initialLiquid }) => {
     } catch (error) {
       alert("Withdrawal failed");
     }
-    setAmount(0);
   };
 
   return (

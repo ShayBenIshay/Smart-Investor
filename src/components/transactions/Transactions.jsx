@@ -9,14 +9,23 @@ import io from "socket.io-client";
 import authentication from "@feathersjs/authentication-client";
 import TransactionsTable from "@/components/transactions/transactionsTable/TransactionsTable";
 
-const socket = io("http://localhost:3030");
-const app = feathers();
-app.configure(socketio(socket));
-app.configure(authentication());
-
-const cacheSocket = io("http://localhost:3031");
-const cacheApp = feathers();
-cacheApp.configure(socketio(cacheSocket));
+let app;
+try {
+  const socket = io("http://localhost:3030");
+  app = feathers();
+  app.configure(socketio(socket));
+  app.configure(authentication());
+} catch (error) {
+  console.error("failed to connect to Smart Investor Services");
+}
+let cacheApp;
+try {
+  const cacheSocket = io("http://localhost:3031");
+  cacheApp = feathers();
+  cacheApp.configure(socketio(cacheSocket));
+} catch (error) {
+  console.error("failed to connect to cache");
+}
 
 export const transactionFormInput = [
   {
@@ -79,13 +88,18 @@ const Transactions = () => {
   const [open, setOpen] = useState(false);
 
   const handleDateChange = async (ticker, date) => {
-    const queryResponse = await cacheApp.service("cache").find({
-      query: {
-        ticker,
-        date,
-      },
-    });
-    const cachedPrice = queryResponse.closePrice || null;
+    let cachedPrice;
+    try {
+      const queryResponse = await cacheApp.service("cache").find({
+        query: {
+          ticker,
+          date,
+        },
+      });
+      cachedPrice = queryResponse.closePrice || null;
+    } catch (error) {
+      cachedPrice = null;
+    }
     if (cachedPrice) {
       return { close: cachedPrice };
     }
@@ -105,7 +119,7 @@ const Transactions = () => {
 
       const result = await response.json();
 
-      await cacheApp.service("cache").create({
+      cacheApp.service("cache").create({
         ticker,
         date,
         closePrice: result.close,

@@ -8,14 +8,23 @@ import authentication from "@feathersjs/authentication-client";
 import { getLastTradingDate } from "@/lib/utils";
 import PortfolioTable from "@/components/portfolio/portfolioTable/PortfolioTable";
 
-const socket = io("http://localhost:3030");
-const app = feathers();
-app.configure(socketio(socket));
-app.configure(authentication());
-
-const cacheSocket = io("http://localhost:3031");
-const cacheApp = feathers();
-cacheApp.configure(socketio(cacheSocket));
+let app;
+try {
+  const socket = io("http://localhost:3030");
+  app = feathers();
+  app.configure(socketio(socket));
+  app.configure(authentication());
+} catch (error) {
+  console.error("failed to connect to Smart Investor Services");
+}
+let cacheApp;
+try {
+  const cacheSocket = io("http://localhost:3031");
+  cacheApp = feathers();
+  cacheApp.configure(socketio(cacheSocket));
+} catch (error) {
+  console.error("failed to connect to cache");
+}
 
 // Helper function to calculate totals
 const calculateTotals = async (transactions, cash = 10000) => {
@@ -55,10 +64,15 @@ const calculateTotals = async (transactions, cash = 10000) => {
     try {
       //date should be the last trading date
       const date = getLastTradingDate();
-      const queryResponse = await cacheApp.service("cache").find({
-        query: { ticker, date },
-      });
-      let currentPrice = queryResponse.closePrice || null;
+      let currentPrice;
+      try {
+        const queryResponse = await cacheApp.service("cache").find({
+          query: { ticker, date },
+        });
+        currentPrice = queryResponse.closePrice || null;
+      } catch (error) {
+        currentPrice = null;
+      }
       if (!currentPrice) {
         const response = await fetch("/api/polygonApi", {
           method: "POST",
@@ -74,7 +88,7 @@ const calculateTotals = async (transactions, cash = 10000) => {
 
         const result = await response.json();
 
-        await cacheApp.service("cache").create({
+        cacheApp.service("cache").create({
           ticker,
           date,
           closePrice: result.close,
