@@ -1,8 +1,4 @@
-// import PieChartBox from "@/components/portfolio/charts/pieCartBox/PieChartBox";
-// import BigChartBox from "@/components/portfolio/charts/bigChartBox/BigChartBox";
-
 // import "./portfolio.scss";
-// import PortfolioTable from "@/components/portfolio/portfolioTable/PortfolioTable";
 // import { getTradingDates } from "@/lib/utils";
 // import enqueue from "../../lib/throttle.js";
 
@@ -13,25 +9,8 @@ export const metadata = {
   description: "Portfolio page",
 };
 
-export const dynamic = "force-dynamic";
-
 const PortfolioPage = async () => {
-  return (
-    <PortfolioComponent />
-    // <div>
-    //   <div className="graphs">
-    //     <div className="box box4">
-    //       <PieChartBox />
-    //     </div>
-    //     {/* <div className="box box7">
-    //       <BigChartBox colors={colors} stocks={totalValuesData} />
-    //     </div> */}
-    //   </div>
-    //   {/* <div className="box10">
-    //     <PortfolioTable stocks={stocksArr} />
-    //   </div> */}
-    // </div>
-  );
+  return <PortfolioComponent />;
 };
 
 export default PortfolioPage;

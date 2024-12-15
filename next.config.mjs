@@ -14,7 +14,7 @@ const nextConfig = {
       },
     ],
   },
-
+  output: "export",
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,

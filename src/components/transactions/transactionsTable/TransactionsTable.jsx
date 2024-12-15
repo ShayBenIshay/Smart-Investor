@@ -90,8 +90,6 @@ const TransactionsTable = ({ transactions }) => {
     return newRow;
   });
 
-  console.log(rows);
-
   return <DataTable columns={columns} rows={rows} />;
 };
 
