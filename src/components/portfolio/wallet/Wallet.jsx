@@ -7,13 +7,19 @@ import socketio from "@feathersjs/socketio-client";
 import io from "socket.io-client";
 import authentication from "@feathersjs/authentication-client";
 
+let app;
+try {
+  const socket = io(process.env.NEXT_PUBLIC_REST_SERVICES_CLIENT_URL);
+  app = feathers();
+  app.configure(socketio(socket));
+  app.configure(authentication());
+} catch (error) {
+  console.error("failed to connect to Smart Investor Services");
+}
+
 const Wallet = ({ liquid: initialLiquid }) => {
   const [liquid, setLiquid] = useState(initialLiquid);
   const [amount, setAmount] = useState();
-  const socket = io("http://localhost:3030");
-  const app = feathers();
-  app.configure(socketio(socket));
-  app.configure(authentication());
 
   const handleDeposit = async () => {
     const deposit = Number(amount);

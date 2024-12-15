@@ -10,7 +10,7 @@ const LocalLogin = () => {
   const appRef = useRef(null);
   if (!appRef.current) {
     const app = feathers();
-    const restClient = rest("http://localhost:3030");
+    const restClient = rest(process.env.NEXT_PUBLIC_REST_SERVICES_CLIENT_URL);
     app.configure(restClient.axios(axios));
     app.configure(
       authentication({

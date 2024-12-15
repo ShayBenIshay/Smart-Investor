@@ -10,7 +10,7 @@ import PortfolioTable from "@/components/portfolio/portfolioTable/PortfolioTable
 
 let app;
 try {
-  const socket = io("http://localhost:3030");
+  const socket = io(process.env.NEXT_PUBLIC_REST_SERVICES_CLIENT_URL);
   app = feathers();
   app.configure(socketio(socket));
   app.configure(authentication());
@@ -19,7 +19,7 @@ try {
 }
 let cacheApp;
 try {
-  const cacheSocket = io("http://localhost:3031");
+  const cacheSocket = io(process.env.NEXT_PUBLIC_REST_CACHE_CLIENT_URL);
   cacheApp = feathers();
   cacheApp.configure(socketio(cacheSocket));
 } catch (error) {
