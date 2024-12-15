@@ -1,4 +1,4 @@
-import Transactions from "@/components/transactions/Transactions";
+import Transactions from "../../components/transactions/Transactions";
 
 export const metadata = {
   title: "Transactions",
