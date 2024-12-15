@@ -1,4 +1,4 @@
-import LocalLogin from "@/components/auth/LocalLogin/localLogin";
+import LocalLogin from "@/components/auth/LocalLogin/localLogin.jsx";
 import styles from "./login.module.css";
 
 const LoginPage = () => {
