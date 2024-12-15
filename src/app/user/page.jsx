@@ -1,23 +1,41 @@
-"use server";
+"use client";
 
-// import Wallet from "../../components/wallet/Wallet";
+import { useState, useEffect } from "react";
 import Wallet from "@/components/portfolio/wallet/Wallet";
-import { User } from "@/lib/models";
-import { auth } from "@/lib/auth";
-import { connectToDb } from "@/lib/utils";
+import feathers from "@feathersjs/feathers";
+import socketio from "@feathersjs/socketio-client";
+import io from "socket.io-client";
+import authentication from "@feathersjs/authentication-client";
 
-const UserPage = async () => {
-  const session = await auth();
-  const id = session?.user?.id;
-  try {
-    connectToDb();
-    const user = await User.findOne({ _id: id });
-    return <Wallet liquid={user.wallet} />;
-  } catch (error) {
-    console.error(error);
+const socket = io("http://localhost:3030");
+const app = feathers();
+app.configure(socketio(socket));
+app.configure(authentication());
+
+const UserPage = () => {
+  const [portfolio, setPortfolio] = useState(null);
+
+  useEffect(() => {
+    const getPortfolio = async () => {
+      const { user: currentUser } = await app.authenticate();
+      if (currentUser) {
+        const queryResponse = await app.service("portfolio").find({
+          query: {
+            userId: currentUser._id,
+          },
+        });
+        setPortfolio(queryResponse.data[0]);
+      } else {
+        setPortfolio(null);
+      }
+    };
+
+    getPortfolio();
+  }, []);
+
+  if (portfolio) {
+    return <Wallet liquid={portfolio?.cash} />;
   }
-
-  return <p>Error fetching user data</p>;
 };
 
 export default UserPage;

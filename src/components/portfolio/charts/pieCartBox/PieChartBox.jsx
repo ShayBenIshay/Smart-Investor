@@ -1,19 +1,9 @@
 "use client";
+
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import "./pieChartBox.scss";
-import React from "react";
 
-type PieChartData = {
-  name: string;
-  value: number;
-  color: string;
-};
-
-interface PieChartBoxProps {
-  data: PieChartData[];
-}
-
-const PieChartBox: React.FC<PieChartBoxProps> = ({ data }) => {
+const PieChartBox = ({ data }) => {
   return (
     <div className="pieChartBox">
       <h1>Holdings</h1>

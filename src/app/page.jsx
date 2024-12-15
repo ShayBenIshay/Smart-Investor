@@ -1,19 +1,43 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import styles from "./home.module.css";
 import { useRouter } from "next/navigation";
 
-import { useSession } from "next-auth/react";
+import feathers from "@feathersjs/feathers";
+import socketio from "@feathersjs/socketio-client";
+import io from "socket.io-client";
+import authentication from "@feathersjs/authentication-client";
+
+const socket = io("http://localhost:3030");
+const app = feathers();
+app.configure(socketio(socket));
+app.configure(authentication());
 
 export default function Home() {
-  const { data: session, status } = useSession();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { user: currentUser } = await app.authenticate();
+      if (currentUser) {
+        setUser(currentUser);
+      } else {
+        setUser(null);
+      }
+    };
+
+    getUser();
+  }, []);
+
   const router = useRouter();
+
   return (
     <div className={styles.container}>
       <div className={styles.textContainer}>
         <h1 className={styles.title}>Smart Investor</h1>
-        <h2 className={styles.subtitle}>Welcome {session?.user?.name}</h2>
+        <h2 className={styles.subtitle}>Welcome {user?.email}</h2>
         <p className={styles.desc}>How can Smart Investor help you today?</p>
         <div className={styles.buttons}>
           <a href="/transactions">

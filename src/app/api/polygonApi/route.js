@@ -2,15 +2,15 @@ import { NextResponse } from "next/server";
 import enqueue from "../../../lib/throttle.js";
 
 export async function POST(req) {
-  const { symbol, date, priority = "system" } = await req.json();
-  if (!symbol || !date) {
+  const { ticker, date, priority = "system" } = await req.json();
+  if (!ticker || !date) {
     return NextResponse.json(
-      { error: "Missing symbol or date." },
+      { error: "Missing ticker or date." },
       { status: 400 }
     );
   }
   try {
-    const data = await enqueue(symbol, date, priority);
+    const data = await enqueue(ticker, date, priority);
     return NextResponse.json({ close: data?.close }, { status: 200 });
   } catch (error) {
     return NextResponse.json(

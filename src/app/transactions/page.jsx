@@ -1,5 +1,4 @@
-import { getUserTransactions } from "@/lib/data";
-import Transactions from "@/components/entities/transactions/Transactions";
+import Transactions from "@/components/transactions/Transactions";
 
 export const metadata = {
   title: "Transactions",
@@ -8,20 +7,21 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
-const TransactionsPage = async () => {
-  const transactions = await getUserTransactions();
+const TransactionsPage = () => {
+  // const transactions = await getUserTransactions();
 
-  const processedTransactions = transactions.map((transaction) => {
-    const formattedDate = transaction.createdAt
-      .split("T")[0]
-      .split("-")
-      .reverse()
-      .join("/");
-    transaction.createdAt = formattedDate;
-    return transaction;
-  });
+  // const processedTransactions = transactions.map((transaction) => {
+  //   const formattedDate = transaction.createdAt
+  //     .split("T")[0]
+  //     .split("-")
+  //     .reverse()
+  //     .join("/");
+  //   transaction.createdAt = formattedDate;
+  //   return transaction;
+  // });
 
-  return <Transactions transactions={transactions} />;
+  // return <Transactions transactions={transactions} />;
+  return <Transactions />;
 };
 
 export default TransactionsPage;

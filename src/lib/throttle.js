@@ -1,4 +1,4 @@
-import { savePriceToCache } from "./cache";
+"use server";
 
 class Throttle {
   constructor(maxCallsPerMinute) {
@@ -26,27 +26,22 @@ class Throttle {
     }, 60000);
   }
 
-  enqueue(symbol, tradingDate, priority = "system") {
+  enqueue(ticker, date, priority = "system") {
     return new Promise((resolve, reject) => {
       const apiCall = async () => {
-        const url = `https://api.polygon.io/v1/open-close/${symbol}/${tradingDate}?apiKey=${this.apiKey}`;
+        const url = `https://api.polygon.io/v1/open-close/${ticker}/${date}?apiKey=${this.apiKey}`;
         try {
           const response = await fetch(url);
 
           if (!response.ok) {
             throw new Error(`API call failed: ${response.statusText}`);
-            // console.error(`API call failed: ${response.statusText}`);
-            // return { close: 0 };
           }
 
           const data = await response.json();
           console.log("API Response:", data);
-
-          await savePriceToCache(symbol, data.close, tradingDate);
-
-          console.log("Saved price to cache successfully.");
           resolve(data);
         } catch (error) {
+          console.log("errorr    ", error);
           reject(error);
         }
       };

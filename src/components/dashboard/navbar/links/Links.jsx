@@ -1,12 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./links.module.css";
 import NavLink from "./navLink/NavLink";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
-import { useSession } from "next-auth/react";
+
+import feathers from "@feathersjs/feathers";
+import socketio from "@feathersjs/socketio-client";
+import io from "socket.io-client";
+import authentication from "@feathersjs/authentication-client";
+
+const socket = io("http://localhost:3030");
+const app = feathers();
+app.configure(socketio(socket));
+app.configure(authentication());
 
 const links = [
   { type: "Public", title: "Homepage", path: "/" },
@@ -19,28 +27,45 @@ const links = [
 ];
 
 const Links = () => {
-  const { data: session } = useSession();
-
-  const [open, setOpen] = useState(false);
   const router = useRouter();
 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      const { user: currentUser } = await app.authenticate();
+      if (currentUser) {
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkAuthentication();
+  }, []);
+
   const handleLogout = async () => {
-    const result = await signOut({ redirect: false });
-    router.push("/");
-    router.refresh();
+    try {
+      await app.logout();
+      console.log("Logged out successfully");
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout error", error);
+    }
   };
 
   const linksHTML = links.map((link) => {
     if (link.type === "Public") {
       return <NavLink item={link} key={link.title} />;
     }
-    if (link.type === "Private" && session?.user) {
+    if (link.type === "Private" && isAuthenticated) {
       return <NavLink item={link} key={link.title} />;
     }
-    if (link.type === "Login" && !session) {
+    if (link.type === "Login" && !isAuthenticated) {
       return <NavLink item={link} key={link.title} />;
     }
-    if (link.type === "Logout" && session) {
+    if (link.type === "Logout" && isAuthenticated) {
       return (
         <button
           onClick={handleLogout}

@@ -1,9 +1,7 @@
 "use client";
 import { GridColDef } from "@mui/x-data-grid";
-import DataTable from "../dataTable/DataTable";
+import DataTable from "../../dataTable/DataTable";
 import { Typography } from "@mui/material";
-
-import { deleteTransaction } from "@/lib/action";
 
 const columns: GridColDef[] = [
   {
@@ -13,26 +11,26 @@ const columns: GridColDef[] = [
     width: 90,
   },
   {
-    field: "averagePrice",
+    field: "avgBuy",
     type: "number",
-    headerName: "Average Price",
+    headerName: "Average Buy",
     width: 120,
   },
   {
-    field: "totalInvestment",
+    field: "totalSpent",
     type: "number",
-    headerName: "Total Investment",
+    headerName: "Total Spent",
     width: 120,
   },
   {
-    field: "totalShares",
-    headerName: "Total Shares",
+    field: "position",
+    headerName: "Position",
     type: "string",
     width: 120,
   },
   {
     field: "currentPrice",
-    headerName: "Current Price",
+    headerName: "Market Price",
     type: "string",
     width: 120,
   },
@@ -57,6 +55,18 @@ const columns: GridColDef[] = [
     ),
   },
   {
+    field: "currentValue",
+    headerName: "Current Value",
+    type: "string",
+    width: 120,
+  },
+  {
+    field: "percentage",
+    headerName: "Percentage",
+    type: "string",
+    width: 120,
+  },
+  {
     field: "change",
     headerName: "Change",
     type: "string",
@@ -77,15 +87,10 @@ const columns: GridColDef[] = [
     ),
   },
 ];
-const PortfolioTable = ({ stocks }) => {
+const PortfolioTable = ({ rows }) => {
   return (
     <div>
-      <DataTable
-        slug="portfolio"
-        columns={columns}
-        rows={stocks}
-        mutation={deleteTransaction}
-      />
+      <DataTable columns={columns} rows={rows} />
     </div>
   );
 };

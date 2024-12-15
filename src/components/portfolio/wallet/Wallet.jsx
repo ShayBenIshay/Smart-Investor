@@ -1,16 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import { changeWallet } from "../../../lib/walletService";
 import styles from "./wallet.module.css";
+import feathers from "@feathersjs/feathers";
+import socketio from "@feathersjs/socketio-client";
+import io from "socket.io-client";
+import authentication from "@feathersjs/authentication-client";
 
 const Wallet = ({ liquid: initialLiquid }) => {
   const [liquid, setLiquid] = useState(initialLiquid);
   const [amount, setAmount] = useState();
+  const socket = io("http://localhost:3030");
+  const app = feathers();
+  app.configure(socketio(socket));
+  app.configure(authentication());
 
   const handleDeposit = async () => {
+    const { user } = await app.reAuthenticate();
+    const queryResponse = await app.service("portfolio").find({
+      query: {
+        userId: user._id,
+      },
+    });
+    const portfolio = queryResponse.data[0];
     try {
-      const updatedWallet = await changeWallet(amount, "deposit");
+      const updatedWallet = portfolio.cash + Number(amount);
+      await app
+        .service("portfolio")
+        .patch(portfolio._id, { cash: updatedWallet });
       setLiquid(updatedWallet);
     } catch (error) {
       alert("Deposit failed");
@@ -19,11 +36,24 @@ const Wallet = ({ liquid: initialLiquid }) => {
   };
 
   const handleWithdrawal = async () => {
-    if (amount > liquid) {
+    const { user } = await app.reAuthenticate();
+    const queryResponse = await app.service("portfolio").find({
+      query: {
+        userId: user._id,
+      },
+    });
+    const portfolio = queryResponse.data[0];
+
+    if (amount > portfolio.cash) {
       alert("Insufficient funds!");
     }
+
     try {
-      const updatedWallet = await changeWallet(amount, "withdraw");
+      const updatedWallet = portfolio.cash - Number(amount);
+      await app
+        .service("portfolio")
+        .patch(portfolio._id, { cash: updatedWallet });
+
       setLiquid(updatedWallet);
     } catch (error) {
       alert("Withdrawal failed");

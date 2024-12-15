@@ -9,22 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@emotion/react": "^11.13.3",
-    "@emotion/styled": "^11.13.0",
+    "@feathersjs/authentication-client": "^5.0.31",
+    "@feathersjs/client": "^5.0.31",
+    "@feathersjs/rest-client": "^5.0.31",
     "@mui/x-data-grid": "^7.16.0",
-    "@types/react-dom": "^18.3.0",
-    "@typescript-eslint/eslint-plugin": "^8.4.0",
-    "@typescript-eslint/parser": "^8.4.0",
-    "bcryptjs": "^2.4.3",
-    "mongoose": "^8.6.1",
+    "axios": "^1.7.9",
     "next": "^14.2.14",
-    "next-auth": "^5.0.0-beta.22",
     "react": "^18",
     "react-datepicker": "^7.4.0",
-    "react-dom": "^18",
     "recharts": "^2.12.7",
-    "sass": "^1.78.0",
-    "uuid": "^10.0.0"
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@types/node": "^22.5.4",
