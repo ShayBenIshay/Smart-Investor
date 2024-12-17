@@ -36,7 +36,8 @@ class Throttle {
           if (!response.ok) {
             throw new Error(`API call failed: ${response.statusText}`);
           }
-
+          console.log(url);
+          console.log(response);
           const data = await response.json();
           console.log("API Response:", data);
           resolve(data);

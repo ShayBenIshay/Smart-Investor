@@ -90,6 +90,10 @@ const Transactions = () => {
   const handleDateChange = async (ticker, date) => {
     let cachedPrice;
     try {
+      if (!cacheApp || !cacheApp.io || !cacheApp.io.connected) {
+        console.error("Cache is currently unavailable.");
+        throw new Error("Cache service is not connected");
+      }
       const queryResponse = await cacheApp.service("cache").find({
         query: {
           ticker,
@@ -116,8 +120,7 @@ const Transactions = () => {
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
-      console.log(response);
-      console.log(await response.json());
+
       const result = await response.json();
 
       cacheApp.service("cache").create({

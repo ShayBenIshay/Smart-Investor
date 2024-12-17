@@ -11,6 +11,7 @@ export async function POST(req) {
   }
   try {
     const data = await enqueue(ticker, date, priority);
+    console.log(data);
     return NextResponse.json({ close: data?.close }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
