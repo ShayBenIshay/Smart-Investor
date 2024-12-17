@@ -109,27 +109,21 @@ const Transactions = () => {
     }
 
     try {
-      const response = await fetch("/api/polygonApi", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const queryResponse = await cacheApp.service("polygon-api").find({
+        query: {
+          ticker,
+          date,
         },
-        body: JSON.stringify({ ticker, date }),
       });
 
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-
-      const result = await response.json();
+      const { close: closePrice } = queryResponse[0];
 
       cacheApp.service("cache").create({
         ticker,
         date,
-        closePrice: result.close,
+        closePrice,
       });
-
-      return result;
+      return closePrice;
     } catch (error) {
       console.error("Failed to add API call to queue:", error);
       throw Error("Failed to add API call to queue:", error);
