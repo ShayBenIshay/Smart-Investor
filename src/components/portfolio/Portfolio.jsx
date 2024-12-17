@@ -77,6 +77,7 @@ const calculateTotals = async (transactions, cash = 10000) => {
           query: {
             ticker,
             date,
+            priority: "user",
           },
         });
         const { close: closePrice } = queryResponse[0];
@@ -182,13 +183,13 @@ const PortfolioComponent = () => {
     .map((item) => ({
       ticker: item.ticker,
       avgBuy: item.avgBuy.toFixed(2),
-      totalSpent: item.totalSpent.toFixed(2),
+      totalSpent: item.totalSpent?.toFixed(2),
       position: item.position,
-      unrealizedPL: item.unrealizedPL.toFixed(2),
-      currentPrice: item.currentPrice.toFixed(2),
-      currentValue: item.currentValue.toFixed(2),
-      percentage: item.percentage.toFixed(2),
-      change: item.change.toFixed(2),
+      unrealizedPL: item.unrealizedPL?.toFixed(2),
+      currentPrice: item.currentPrice?.toFixed(2),
+      currentValue: item.currentValue?.toFixed(2),
+      percentage: item.percentage?.toFixed(2),
+      change: item.change?.toFixed(2),
     }))
     .sort((a, b) => b.percentage - a.percentage);
   const pieDataSorted = pieDataArr.sort((a, b) => b.value - a.value);
