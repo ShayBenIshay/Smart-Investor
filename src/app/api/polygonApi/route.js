@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import enqueue from "../../../lib/throttle.js";
 
 export async function POST(req) {
+  console.log("Executing /api/polygonApi route");
   const { ticker, date, priority = "system" } = await req.json();
+  console.log(`ticker: ${ticker} date: ${date} priority: ${priority}`);
   if (!ticker || !date) {
     return NextResponse.json(
       { error: "Missing ticker or date." },
