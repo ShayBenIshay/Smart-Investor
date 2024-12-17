@@ -81,7 +81,7 @@ const calculateTotals = async (transactions, cash = 10000) => {
         });
         const { close: closePrice } = queryResponse[0];
 
-        cacheApp.service("cache").create({
+        await cacheApp.service("cache").create({
           ticker,
           date,
           closePrice,
