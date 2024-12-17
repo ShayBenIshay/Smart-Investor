@@ -117,6 +117,7 @@ const Transactions = () => {
         throw new Error(`Error: ${response.status}`);
       }
       console.log(response);
+      console.log(await response.json());
       const result = await response.json();
 
       cacheApp.service("cache").create({
