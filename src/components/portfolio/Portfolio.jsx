@@ -62,7 +62,6 @@ const calculateTotals = async (transactions, cash = 10000) => {
 
   for (const ticker of Object.keys(calcTotals)) {
     try {
-      //date should be the last trading date
       const date = getLastTradingDate();
       let currentPrice;
       try {
@@ -74,26 +73,20 @@ const calculateTotals = async (transactions, cash = 10000) => {
         currentPrice = null;
       }
       if (!currentPrice) {
-        const response = await fetch("/api/polygonApi", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+        const queryResponse = await cacheApp.service("polygon-api").find({
+          query: {
+            ticker,
+            date,
           },
-          body: JSON.stringify({ ticker, date }),
         });
-
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
-        }
-
-        const result = await response.json();
+        const { close: closePrice } = queryResponse[0];
 
         cacheApp.service("cache").create({
           ticker,
           date,
-          closePrice: result.close,
+          closePrice,
         });
-        currentPrice = result.close;
+        currentPrice = closePrice;
       }
       calcTotals[ticker].currentPrice = currentPrice;
       calcTotals[ticker].change = currentPrice - calcTotals[ticker].avgBuy;
