@@ -17,16 +17,7 @@ try {
 } catch (error) {
   console.error("failed to connect to Smart Investor Services");
 }
-let cacheApp;
-try {
-  const cacheSocket = io(process.env.NEXT_PUBLIC_REST_CACHE_CLIENT_URL);
-  cacheApp = feathers();
-  cacheApp.configure(socketio(cacheSocket));
-} catch (error) {
-  console.error("failed to connect to cache");
-}
 
-// Helper function to calculate totals
 const calculateTotals = async (transactions, cash = 10000) => {
   const calcTotals = transactions.reduce((acc, transaction) => {
     const { ticker, price, papers, operation } = transaction;
@@ -65,7 +56,7 @@ const calculateTotals = async (transactions, cash = 10000) => {
       const date = getLastTradingDate();
       let currentPrice;
       try {
-        const queryResponse = await cacheApp.service("cache").find({
+        const queryResponse = await app.service("cache").find({
           query: { ticker, date },
         });
         currentPrice = queryResponse.closePrice || null;
@@ -73,7 +64,7 @@ const calculateTotals = async (transactions, cash = 10000) => {
         currentPrice = null;
       }
       if (!currentPrice) {
-        const queryResponse = await cacheApp.service("polygon-api").find({
+        const queryResponse = await app.service("polygon-api").find({
           query: {
             ticker,
             date,
@@ -82,7 +73,7 @@ const calculateTotals = async (transactions, cash = 10000) => {
         });
         const { close: closePrice } = queryResponse[0];
 
-        await cacheApp.service("cache").create({
+        await app.service("cache").create({
           ticker,
           date,
           closePrice,
@@ -97,7 +88,7 @@ const calculateTotals = async (transactions, cash = 10000) => {
       calcTotals[ticker].unrealizedPL =
         calcTotals[ticker].currentValue - calcTotals[ticker].totalSpent;
     } catch (error) {
-      console.error(`Failed to fetch price for ${ticker}:`, error);
+      console.log(`Failed to fetch price for ${ticker}`);
       calcTotals[ticker].currentPrice = null;
     }
   }
@@ -143,6 +134,7 @@ const PortfolioComponent = () => {
     return <div>Loading...</div>;
   }
 
+  //change this so if something is missing in totals (api threshold limitation) it will rerun the calculation after a minute.
   if (!totals) {
     return <div>No data available</div>;
   }

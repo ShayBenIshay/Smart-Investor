@@ -18,14 +18,6 @@ try {
 } catch (error) {
   console.error("failed to connect to Smart Investor Services");
 }
-let cacheApp;
-try {
-  const cacheSocket = io(process.env.NEXT_PUBLIC_REST_CACHE_CLIENT_URL);
-  cacheApp = feathers();
-  cacheApp.configure(socketio(cacheSocket));
-} catch (error) {
-  console.error("failed to connect to cache");
-}
 
 export const transactionFormInput = [
   {
@@ -90,11 +82,7 @@ const Transactions = () => {
   const handleDateChange = async (ticker, date) => {
     let cachedPrice;
     try {
-      if (!cacheApp || !cacheApp.io || !cacheApp.io.connected) {
-        console.error("Cache is currently unavailable.");
-        throw new Error("Cache service is not connected");
-      }
-      const queryResponse = await cacheApp.service("cache").find({
+      const queryResponse = await app.service("cache").find({
         query: {
           ticker,
           date,
@@ -109,24 +97,28 @@ const Transactions = () => {
     }
 
     try {
-      const queryResponse = await cacheApp.service("polygon-api").find({
+      const queryResponse = await app.service("polygon-api").find({
         query: {
           ticker,
           date,
         },
       });
-
+      if (!queryResponse) console.log(`query response was undefineddd`);
       const { close: closePrice } = queryResponse[0];
 
-      cacheApp.service("cache").create({
+      app.service("cache").create({
         ticker,
         date,
         closePrice,
       });
       return closePrice;
     } catch (error) {
-      console.error("Failed to add API call to queue:", error);
-      throw Error("Failed to add API call to queue:", error);
+      console.log(
+        `Exceeded api threshold, can't fetch price for ${ticker}_${date}`
+      );
+      // throw Error(
+      //   `Exceeded api threshold, can't fetch price for ${ticker}_${date}`
+      // );
     }
   };
   if (transactions)
