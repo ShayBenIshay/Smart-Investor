@@ -18,10 +18,9 @@ try {
   console.error("failed to connect to Smart Investor Services");
 }
 
-const calculateTotals = async (transactions, cash = 10000) => {
+const calculateAgentTotals = async (transactions, cash = 10000) => {
   const calcTotals = transactions.reduce((acc, transaction) => {
     const { ticker, price, papers, operation } = transaction;
-
     if (!acc[ticker]) {
       acc[ticker] = {
         ticker,
@@ -100,8 +99,8 @@ const calculateTotals = async (transactions, cash = 10000) => {
   return calcTotals;
 };
 
-const PortfolioComponent = () => {
-  const [totals, setTotals] = useState(null);
+const AgentPortfolio = () => {
+  const [agentTotals, setAgentTotals] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -112,19 +111,22 @@ const PortfolioComponent = () => {
           const transactionsResponse = await app.service("transactions").find({
             query: { userId: currentUser._id },
           });
-          const userTransactions = transactionsResponse.data.filter(
-            (transaction) => Object.keys(transaction.agentId).length === 0
+          const agentTransactions = transactionsResponse.data.filter(
+            (transaction) => Object.keys(transaction.agentId).length > 0
           );
-          // const transactions = transactionsResponse.data;
+
           const portfolioResponse = await app.service("portfolio").find({
             query: { userId: currentUser._id },
           });
-          const portfolio = portfolioResponse.data[0];
-          const totals = await calculateTotals(
-            userTransactions,
+          const filteredPortfolio = portfolioResponse.data.filter(
+            (portfolio) => Object.keys(portfolio.agentId).length > 0
+          );
+          const portfolio = filteredPortfolio[0];
+          const agentTotals = await calculateAgentTotals(
+            agentTransactions,
             portfolio.cash
           );
-          setTotals(totals);
+          setAgentTotals(agentTotals);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -141,10 +143,9 @@ const PortfolioComponent = () => {
   }
 
   //change this so if something is missing in totals (api threshold limitation) it will rerun the calculation after a minute.
-  if (!totals) {
+  if (!agentTotals) {
     return <div>No data available</div>;
   }
-
   let cashPercentage = 100;
   let i = 0;
   const colors = [
@@ -164,7 +165,7 @@ const PortfolioComponent = () => {
     "#8E8CD8",
     "#FF9A76",
   ];
-  const pieDataArr = Object.entries(totals).map(([ticker, value]) => {
+  const pieDataArr = Object.entries(agentTotals).map(([ticker, value]) => {
     cashPercentage -= value.percentage;
     return {
       name: ticker,
@@ -177,7 +178,7 @@ const PortfolioComponent = () => {
     value: parseFloat(cashPercentage.toFixed(2)),
     color: colors[i++ % colors.length],
   });
-  const rows = Object.values(totals)
+  const rows = Object.values(agentTotals)
     .map((item) => ({
       ticker: item.ticker,
       avgBuy: item.avgBuy.toFixed(2),
@@ -210,4 +211,4 @@ const PortfolioComponent = () => {
   );
 };
 
-export default PortfolioComponent;
+export default AgentPortfolio;

@@ -39,6 +39,9 @@ const LocalLogin = () => {
 
   const handleLogin = async () => {
     const credentials = getCredentials();
+    if (!(credentials?.email && credentials?.password)) {
+      return;
+    }
     app
       .authenticate({
         strategy: "local",
@@ -69,7 +72,7 @@ const LocalLogin = () => {
       <form>
         <div>
           <label for="email" class="label">
-            <span class="label-text">Email</span>
+            <span class="label-text">Email: </span>
           </label>
           <input
             type="text"
@@ -80,7 +83,7 @@ const LocalLogin = () => {
         </div>
         <div>
           <label for="password" class="label">
-            <span class="label-text">Password</span>
+            <span class="label-text">Password: </span>
           </label>
           <input
             type="password"

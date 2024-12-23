@@ -64,6 +64,7 @@ const Add = (props) => {
       executedAt: new Date(executedAt),
       operation,
       papers: parseInt(papers, 10),
+      agentId: {},
     });
 
     const queryResponse = await app.service("portfolio").find({
