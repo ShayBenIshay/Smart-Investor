@@ -52,16 +52,16 @@ const Add = (props) => {
     e.preventDefault();
     const ticker = document.querySelector('[name="ticker"]').value;
     const price = document.querySelector('[name="price"]').value;
-    const executedAt = document.querySelector('[name="executedAt"]').value;
     const operation = document.querySelector('[name="operation"]').value;
     const papers = document.querySelector('[name="papers"]').value;
     props.setOpen(false);
 
     const { user } = await app.reAuthenticate();
+    const executedAt = new Date();
     await app.service("transactions").create({
       ticker,
       price: parseFloat(price),
-      executedAt: new Date(executedAt),
+      executedAt,
       operation,
       papers: parseInt(papers, 10),
       agentId: {},
@@ -80,29 +80,6 @@ const Add = (props) => {
 
     window.location.reload();
   };
-
-  // const tradingDates = getTradingDates(7);
-
-  // tradingDates.map(async (tradingDate) => {
-  //   const cachedPrice = await getCachedPrice(symbol, tradingDate);
-  //   if (!cachedPrice) {
-  //     console.log(
-  //       "adding to throttle     adding to throttle     adding to throttle     adding to throttle     "
-  //     );
-  //     try {
-  //       fetch("/api/polygonApi", {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify({ symbol, date: tradingDate }),
-  //       });
-  //     } catch (error) {
-  //       console.log("error   error   error   error   error   error   ");
-  //       console.log(error);
-  //     }
-  //   }
-  // });
 
   return (
     <div className="add">

@@ -63,10 +63,11 @@ const calculateAgentTotals = async (transactions, cash = 10000) => {
         currentPrice = null;
       }
       if (!currentPrice) {
-        const queryResponse = await app.service("polygon-api").find({
+        //use previous close instead
+        const queryResponse = await app.service("throttle").find({
           query: {
+            name: "prev",
             ticker,
-            date,
             priority: "user",
           },
         });

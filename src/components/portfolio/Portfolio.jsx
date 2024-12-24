@@ -64,10 +64,10 @@ const calculateTotals = async (transactions, cash = 10000) => {
         currentPrice = null;
       }
       if (!currentPrice) {
-        const queryResponse = await app.service("polygon-api").find({
+        const queryResponse = await app.service("throttle").find({
           query: {
+            name: "prev",
             ticker,
-            date,
             priority: "user",
           },
         });
@@ -115,7 +115,6 @@ const PortfolioComponent = () => {
           const userTransactions = transactionsResponse.data.filter(
             (transaction) => Object.keys(transaction.agentId).length === 0
           );
-          // const transactions = transactionsResponse.data;
           const portfolioResponse = await app.service("portfolio").find({
             query: { userId: currentUser._id },
           });
@@ -140,8 +139,8 @@ const PortfolioComponent = () => {
     return <div>Loading...</div>;
   }
 
-  //change this so if something is missing in totals (api threshold limitation) it will rerun the calculation after a minute.
   if (!totals) {
+    //if something is missing in totals retriger calculation after a minute.
     return <div>No data available</div>;
   }
 

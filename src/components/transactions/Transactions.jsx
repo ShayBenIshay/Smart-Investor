@@ -100,8 +100,9 @@ const Transactions = () => {
     }
 
     try {
-      const queryResponse = await app.service("polygon-api").find({
+      const queryResponse = await app.service("throttle").find({
         query: {
+          name: "open-close",
           ticker,
           date,
         },
