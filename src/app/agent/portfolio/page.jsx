@@ -1,7 +1,7 @@
-import AgentPortfolio from "@/components/agent/agentPortfolio/AgentPortfolio";
+// import AgentPortfolio from "@/components/agent/agentPortfolio/AgentPortfolio";
 
-const AgentPortfolioPage = () => {
-  return <AgentPortfolio />;
-};
+// const AgentPortfolioPage = () => {
+//   return <AgentPortfolio />;
+// };
 
-export default AgentPortfolioPage;
+// export default AgentPortfolioPage;

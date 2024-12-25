@@ -18,87 +18,87 @@ try {
   console.error("failed to connect to Smart Investor Services");
 }
 
-const calculateAgentTotals = async (transactions, cash = 10000) => {
-  const calcTotals = transactions.reduce((acc, transaction) => {
-    const { ticker, price, papers, operation } = transaction;
-    if (!acc[ticker]) {
-      acc[ticker] = {
-        ticker,
-        avgBuy: 0,
-        totalSpent: 0,
-        position: 0,
-        unrealizedPL: 0,
-        change: 0,
-      };
-    }
+// const calculateAgentTotals = async (transactions, cash = 10000) => {
+//   const calcTotals = transactions.reduce((acc, transaction) => {
+//     const { ticker, price, papers, operation } = transaction;
+//     if (!acc[ticker]) {
+//       acc[ticker] = {
+//         ticker,
+//         avgBuy: 0,
+//         totalSpent: 0,
+//         position: 0,
+//         unrealizedPL: 0,
+//         change: 0,
+//       };
+//     }
 
-    if (operation === "buy") {
-      acc[ticker].totalSpent += price * papers;
-      acc[ticker].position += papers;
-      acc[ticker].avgBuy = acc[ticker].totalSpent / acc[ticker].position;
-    } else if (operation === "sell") {
-      acc[ticker].position -= papers;
-      acc[ticker].totalSpent -= price * papers;
-      acc[ticker].avgBuy =
-        acc[ticker].position > 0
-          ? acc[ticker].totalSpent / acc[ticker].position
-          : 0;
-    }
+//     if (operation === "buy") {
+//       acc[ticker].totalSpent += price * papers;
+//       acc[ticker].position += papers;
+//       acc[ticker].avgBuy = acc[ticker].totalSpent / acc[ticker].position;
+//     } else if (operation === "sell") {
+//       acc[ticker].position -= papers;
+//       acc[ticker].totalSpent -= price * papers;
+//       acc[ticker].avgBuy =
+//         acc[ticker].position > 0
+//           ? acc[ticker].totalSpent / acc[ticker].position
+//           : 0;
+//     }
 
-    return acc;
-  }, {});
+//     return acc;
+//   }, {});
 
-  let totalValue = cash;
+//   let totalValue = cash;
 
-  for (const ticker of Object.keys(calcTotals)) {
-    try {
-      const date = getLastTradingDate();
-      let currentPrice;
-      try {
-        const queryResponse = await app.service("cache").find({
-          query: { ticker, date },
-        });
-        currentPrice = queryResponse.closePrice || null;
-      } catch (error) {
-        currentPrice = null;
-      }
-      if (!currentPrice) {
-        //use previous close instead
-        const queryResponse = await app.service("throttle").find({
-          query: {
-            name: "prev",
-            ticker,
-            priority: "user",
-          },
-        });
-        const { close: closePrice } = queryResponse[0];
+//   for (const ticker of Object.keys(calcTotals)) {
+//     try {
+//       const date = getLastTradingDate();
+//       let currentPrice;
+//       try {
+//         const queryResponse = await app.service("cache").find({
+//           query: { ticker, date },
+//         });
+//         currentPrice = queryResponse.closePrice || null;
+//       } catch (error) {
+//         currentPrice = null;
+//       }
+//       if (!currentPrice) {
+//         //use previous close instead
+//         const queryResponse = await app.service("throttle").find({
+//           query: {
+//             name: "prev",
+//             ticker,
+//             priority: "user",
+//           },
+//         });
+//         const { close: closePrice } = queryResponse[0];
 
-        await app.service("cache").create({
-          ticker,
-          date,
-          closePrice,
-        });
-        currentPrice = closePrice;
-      }
-      calcTotals[ticker].currentPrice = currentPrice;
-      calcTotals[ticker].change = currentPrice - calcTotals[ticker].avgBuy;
-      calcTotals[ticker].currentValue =
-        currentPrice * calcTotals[ticker].position;
-      totalValue += calcTotals[ticker].currentValue || 0;
-      calcTotals[ticker].unrealizedPL =
-        calcTotals[ticker].currentValue - calcTotals[ticker].totalSpent;
-    } catch (error) {
-      console.log(`Failed to fetch price for ${ticker}`);
-      calcTotals[ticker].currentPrice = null;
-    }
-  }
+//         await app.service("cache").create({
+//           ticker,
+//           date,
+//           closePrice,
+//         });
+//         currentPrice = closePrice;
+//       }
+//       calcTotals[ticker].currentPrice = currentPrice;
+//       calcTotals[ticker].change = currentPrice - calcTotals[ticker].avgBuy;
+//       calcTotals[ticker].currentValue =
+//         currentPrice * calcTotals[ticker].position;
+//       totalValue += calcTotals[ticker].currentValue || 0;
+//       calcTotals[ticker].unrealizedPL =
+//         calcTotals[ticker].currentValue - calcTotals[ticker].totalSpent;
+//     } catch (error) {
+//       console.log(`Failed to fetch price for ${ticker}`);
+//       calcTotals[ticker].currentPrice = null;
+//     }
+//   }
 
-  for (const ticker of Object.keys(calcTotals)) {
-    calcTotals[ticker].percentage =
-      (calcTotals[ticker].currentValue / totalValue) * 100;
-  }
-  return calcTotals;
-};
+//   for (const ticker of Object.keys(calcTotals)) {
+//     calcTotals[ticker].percentage =
+//       (calcTotals[ticker].currentValue / totalValue) * 100;
+//   }
+//   return calcTotals;
+// };
 
 const AgentPortfolio = ({ agentId }) => {
   const [agentTotals, setAgentTotals] = useState(null);
@@ -109,22 +109,15 @@ const AgentPortfolio = ({ agentId }) => {
       try {
         const { user: currentUser } = await app.authenticate();
         if (currentUser) {
-          const agentTransactions = await app.service("transactions").find({
-            query: { userId: agentId },
+          const totals = await app.service("portfolio").find({
+            query: {
+              name: "calculate",
+              userId: agentId,
+            },
           });
-          const portfolioResponse = await app.service("portfolio").find({
-            query: { name: "find", userId: agentId },
-          });
-          // const filteredPortfolio = portfolioResponse.data.filter(
-          //   (portfolio) => Object.keys(portfolio.agentId).length > 0
-          // );
-          // const portfolio = filteredPortfolio[0];
-          const portfolio = portfolioResponse;
-          const agentTotals = await calculateAgentTotals(
-            agentTransactions,
-            portfolio.cash
-          );
-          setAgentTotals(agentTotals);
+          setAgentTotals(totals);
+        } else {
+          setAgentTotals(null);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -132,15 +125,30 @@ const AgentPortfolio = ({ agentId }) => {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
+  // const agentTransactions = await app.service("transactions").find({
+  //   query: { userId: agentId },
+  // });
+  // const portfolioResponse = await app.service("portfolio").find({
+  //   query: { name: "find", userId: agentId },
+  // });
+  // const filteredPortfolio = portfolioResponse.data.filter(
+  //   (portfolio) => Object.keys(portfolio.agentId).length > 0
+  // );
+  // const portfolio = filteredPortfolio[0];
+  // const portfolio = portfolioResponse;
+  // const agentTotals = await calculateAgentTotals(
+  //   agentTransactions,
+  //   portfolio.cash
+  // );
+  // setAgentTotals(agentTotals);
+  // }
 
   if (loading) {
     return <div>Loading...</div>;
   }
 
-  //rerun the calculation after a minute if something is missing in totals (api threshold limitation).
   if (!agentTotals) {
     return <div>No data available</div>;
   }
