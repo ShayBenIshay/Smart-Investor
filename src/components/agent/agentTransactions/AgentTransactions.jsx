@@ -17,7 +17,7 @@ try {
   console.error("failed to connect to Smart Investor Services");
 }
 
-const AgentTransactions = () => {
+const AgentTransactions = ({ agentId }) => {
   const [agentTransactions, setAgentTransactions] = useState(null);
 
   useEffect(() => {
@@ -26,13 +26,10 @@ const AgentTransactions = () => {
       if (user) {
         const queryResponse = await app.service("transactions").find({
           query: {
-            userId: user._id,
+            userId: agentId,
           },
         });
-        const agentTransactions = queryResponse.data.filter(
-          (transaction) => Object.keys(transaction.agentId).length > 0
-        );
-        setAgentTransactions(agentTransactions);
+        setAgentTransactions(queryResponse);
       } else {
         setAgentTransactions(null);
       }
@@ -45,7 +42,7 @@ const AgentTransactions = () => {
     return (
       <div className="transactions">
         <div className="info">
-          <h1>Agent Transactions</h1>
+          <h2>Agent's Transactions</h2>
         </div>
         <TransactionsTable transactions={agentTransactions} />
       </div>

@@ -5,7 +5,6 @@ import feathers from "@feathersjs/feathers";
 import socketio from "@feathersjs/socketio-client";
 import io from "socket.io-client";
 import authentication from "@feathersjs/authentication-client";
-import { getLastTradingDate } from "@/lib/utils";
 import PortfolioTable from "@/components/portfolio/portfolioTable/PortfolioTable";
 
 let app;
@@ -18,88 +17,6 @@ try {
   console.error("failed to connect to Smart Investor Services");
 }
 
-const calculateTotals = async (transactions, cash = 10000) => {
-  const calcTotals = transactions.reduce((acc, transaction) => {
-    const { ticker, price, papers, operation } = transaction;
-
-    if (!acc[ticker]) {
-      acc[ticker] = {
-        ticker,
-        avgBuy: 0,
-        totalSpent: 0,
-        position: 0,
-        unrealizedPL: 0,
-        change: 0,
-      };
-    }
-
-    if (operation === "buy") {
-      acc[ticker].totalSpent += price * papers;
-      acc[ticker].position += papers;
-      acc[ticker].avgBuy = acc[ticker].totalSpent / acc[ticker].position;
-    } else if (operation === "sell") {
-      acc[ticker].position -= papers;
-      acc[ticker].totalSpent -= price * papers;
-      acc[ticker].avgBuy =
-        acc[ticker].position > 0
-          ? acc[ticker].totalSpent / acc[ticker].position
-          : 0;
-    }
-
-    return acc;
-  }, {});
-
-  let totalValue = cash;
-
-  for (const ticker of Object.keys(calcTotals)) {
-    try {
-      const date = getLastTradingDate();
-      let currentPrice;
-      try {
-        const queryResponse = await app.service("cache").find({
-          query: { ticker, date },
-        });
-        currentPrice = queryResponse.closePrice || null;
-      } catch (error) {
-        currentPrice = null;
-      }
-      if (!currentPrice) {
-        const queryResponse = await app.service("throttle").find({
-          query: {
-            name: "prev",
-            ticker,
-            priority: "user",
-          },
-        });
-        const { close: closePrice } = queryResponse[0];
-
-        await app.service("cache").create({
-          ticker,
-          date,
-          closePrice,
-        });
-        currentPrice = closePrice;
-      }
-      calcTotals[ticker].currentPrice = currentPrice;
-      calcTotals[ticker].change = currentPrice - calcTotals[ticker].avgBuy;
-      calcTotals[ticker].currentValue =
-        currentPrice * calcTotals[ticker].position;
-      totalValue += calcTotals[ticker].currentValue || 0;
-      calcTotals[ticker].unrealizedPL =
-        calcTotals[ticker].currentValue - calcTotals[ticker].totalSpent;
-    } catch (error) {
-      console.log(`Failed to fetch price for ${ticker}`);
-      calcTotals[ticker].currentPrice = null;
-    }
-  }
-
-  for (const ticker of Object.keys(calcTotals)) {
-    calcTotals[ticker].percentage =
-      (calcTotals[ticker].currentValue / totalValue) * 100;
-  }
-  return calcTotals;
-};
-
 const PortfolioComponent = () => {
   const [totals, setTotals] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -109,21 +26,15 @@ const PortfolioComponent = () => {
       try {
         const { user: currentUser } = await app.authenticate();
         if (currentUser) {
-          const transactionsResponse = await app.service("transactions").find({
-            query: { userId: currentUser._id },
+          const tot = await app.service("portfolio").find({
+            query: {
+              name: "calculate",
+              userId: currentUser._id,
+            },
           });
-          const userTransactions = transactionsResponse.data.filter(
-            (transaction) => Object.keys(transaction.agentId).length === 0
-          );
-          const portfolioResponse = await app.service("portfolio").find({
-            query: { userId: currentUser._id },
-          });
-          const portfolio = portfolioResponse.data[0];
-          const totals = await calculateTotals(
-            userTransactions,
-            portfolio.cash
-          );
-          setTotals(totals);
+          setTotals(tot);
+        } else {
+          setTotals(null);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -140,7 +51,6 @@ const PortfolioComponent = () => {
   }
 
   if (!totals) {
-    //if something is missing in totals retriger calculation after a minute.
     return <div>No data available</div>;
   }
 
@@ -176,6 +86,7 @@ const PortfolioComponent = () => {
     value: parseFloat(cashPercentage.toFixed(2)),
     color: colors[i++ % colors.length],
   });
+
   const rows = Object.values(totals)
     .map((item) => ({
       ticker: item.ticker,

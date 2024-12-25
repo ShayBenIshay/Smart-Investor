@@ -29,6 +29,7 @@ const UserPage = () => {
       if (currentUser) {
         const queryResponse = await app.service("portfolio").find({
           query: {
+            name: "find",
             userId: currentUser._id,
           },
         });

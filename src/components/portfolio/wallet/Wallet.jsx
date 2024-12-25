@@ -28,6 +28,7 @@ const Wallet = ({ liquid: initialLiquid }) => {
     const { user } = await app.reAuthenticate();
     const queryResponse = await app.service("portfolio").find({
       query: {
+        name: "find",
         userId: user._id,
       },
     });

@@ -100,7 +100,7 @@ const calculateAgentTotals = async (transactions, cash = 10000) => {
   return calcTotals;
 };
 
-const AgentPortfolio = () => {
+const AgentPortfolio = ({ agentId }) => {
   const [agentTotals, setAgentTotals] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -109,20 +109,17 @@ const AgentPortfolio = () => {
       try {
         const { user: currentUser } = await app.authenticate();
         if (currentUser) {
-          const transactionsResponse = await app.service("transactions").find({
-            query: { userId: currentUser._id },
+          const agentTransactions = await app.service("transactions").find({
+            query: { userId: agentId },
           });
-          const agentTransactions = transactionsResponse.data.filter(
-            (transaction) => Object.keys(transaction.agentId).length > 0
-          );
-
           const portfolioResponse = await app.service("portfolio").find({
-            query: { userId: currentUser._id },
+            query: { name: "find", userId: agentId },
           });
-          const filteredPortfolio = portfolioResponse.data.filter(
-            (portfolio) => Object.keys(portfolio.agentId).length > 0
-          );
-          const portfolio = filteredPortfolio[0];
+          // const filteredPortfolio = portfolioResponse.data.filter(
+          //   (portfolio) => Object.keys(portfolio.agentId).length > 0
+          // );
+          // const portfolio = filteredPortfolio[0];
+          const portfolio = portfolioResponse;
           const agentTotals = await calculateAgentTotals(
             agentTransactions,
             portfolio.cash
@@ -143,7 +140,7 @@ const AgentPortfolio = () => {
     return <div>Loading...</div>;
   }
 
-  //change this so if something is missing in totals (api threshold limitation) it will rerun the calculation after a minute.
+  //rerun the calculation after a minute if something is missing in totals (api threshold limitation).
   if (!agentTotals) {
     return <div>No data available</div>;
   }
@@ -197,6 +194,7 @@ const AgentPortfolio = () => {
 
   return (
     <div>
+      <h2>Agent's Portfolio</h2>
       <div className="graphs">
         <div className="box box4">
           <PieChartBox data={pieDataSorted} />

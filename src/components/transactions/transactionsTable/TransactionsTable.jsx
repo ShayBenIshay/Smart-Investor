@@ -1,4 +1,5 @@
 import DataTable from "@/components/dataTable/DataTable";
+import { create } from "domain";
 import Image from "next/image";
 
 const deleteTransaction = (id) => {
@@ -62,23 +63,20 @@ const columns = [
   },
 ];
 
+const dateToStr = (dateNumber) => {
+  const formatString = new Date(parseInt(dateNumber.$date.$numberLong, 10))
+    .toISOString()
+    .split("T")[0];
+  return formatString;
+};
+
 const TransactionsTable = ({ transactions }) => {
   const rows = transactions?.map((row) => {
-    const createdAt = new Date(Number(row.createdAt.$date.$numberLong))
-      .toISOString()
-      .split("T")[0]
-      .split("-")
-      .reverse()
-      .join("/");
-    const executedAt = new Date(Number(row.createdAt.$date.$numberLong))
-      .toISOString()
-      .split("T")[0]
-      .split("-")
-      .reverse()
-      .join("/");
+    const createdAt = dateToStr(row.createdAt);
+
     const newRow = {
       ...row,
-      executedAt,
+      executedAt: createdAt,
       createdAt,
     };
     Object.keys(newRow).forEach((key) => {

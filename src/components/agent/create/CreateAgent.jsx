@@ -24,6 +24,7 @@ const CreateAgent = () => {
   const handleCreate = async () => {
     //handle the creation of agent
     const agent = getAgentInput();
+    console.log(agent);
     const { user } = await app.reAuthenticate();
     await app
       .service("agent")
@@ -41,19 +42,16 @@ const CreateAgent = () => {
     const agent = {
       name: document.querySelector('[name="name"]').value,
       cash: document.querySelector('[name="cash"]').value,
-      executionMultiplier: document.querySelector(
-        '[name="execution-multiplier"]'
-      ).value,
-      executionTimespan: document.querySelector('[name="execution-timespan"]')
-        .value,
+      multiplier: document.querySelector('[name="multiplier"]').value,
+      timespan: document.querySelector('[name="timespan"]').value,
       preferences: document.querySelector('[name="preferences"]').value,
     };
     if (
       !(
         agent.name &&
         agent.cash &&
-        agent.executionMultiplier &&
-        agent.executionTimespan &&
+        agent.multiplier &&
+        agent.timespan &&
         agent.preferences
       )
     ) {
@@ -61,8 +59,8 @@ const CreateAgent = () => {
     }
     document.querySelector('[name="name"]').value = "";
     document.querySelector('[name="cash"]').value = "";
-    document.querySelector('[name="execution-multiplier"]').value = "";
-    document.querySelector('[name="execution-timespan"]').value = "";
+    document.querySelector('[name="multiplier"]').value = "";
+    document.querySelector('[name="timespan"]').value = "";
     document.querySelector('[name="preferences"]').value = "";
 
     return agent;
@@ -101,13 +99,13 @@ const CreateAgent = () => {
           </label>
           <input
             type="number"
-            name="execution-multiplier"
+            name="multiplier"
             placeholder="Number"
             class="input input-bordered"
           />
           <input
             type="text"
-            name="execution-timespan"
+            name="timespan"
             placeholder="hour/day/week"
             class="input input-bordered"
           />
@@ -127,7 +125,7 @@ const CreateAgent = () => {
           ></textarea>
         </div>
         <div>
-          <button id="login" type="button" onClick={handleCreate}>
+          <button type="button" onClick={handleCreate}>
             Create Agent
           </button>
         </div>

@@ -58,20 +58,22 @@ const Add = (props) => {
 
     const { user } = await app.reAuthenticate();
     const executedAt = new Date();
+    console.log(user);
     await app.service("transactions").create({
+      userId: user._id,
       ticker,
       price: parseFloat(price),
       executedAt,
       operation,
       papers: parseInt(papers, 10),
-      agentId: {},
     });
-
     const queryResponse = await app.service("portfolio").find({
       query: {
+        name: "find",
         userId: user._id,
       },
     });
+    console.log(queryResponse);
     const portfolio = queryResponse.data[0];
     const change = operation === "buy" ? price * papers : -price * papers;
     await app

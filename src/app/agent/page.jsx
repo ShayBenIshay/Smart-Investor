@@ -1,7 +1,7 @@
-import Agent from "../../components/agent/Agent";
+import Agents from "../../components/agent/Agents";
 
 const AgentPage = () => {
-  return <Agent />;
+  return <Agents />;
 };
 
 export default AgentPage;

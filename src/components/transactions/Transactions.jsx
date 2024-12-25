@@ -69,10 +69,7 @@ const Transactions = () => {
             userId: user._id,
           },
         });
-        const userTransactions = queryResponse.data.filter(
-          (transaction) => Object.keys(transaction.agentId).length === 0
-        );
-        setTransactions(userTransactions);
+        setTransactions(queryResponse);
       } else {
         setTransactions(null);
       }
