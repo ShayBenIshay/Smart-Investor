@@ -27,7 +27,7 @@ const nextConfig = {
 
   distDir: ".next",
   experimental: {
-    outputStandalone: true, // Important for static export to work properly
+    output: "standalone",
   },
 };
 
