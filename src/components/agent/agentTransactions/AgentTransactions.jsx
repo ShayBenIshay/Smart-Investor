@@ -42,7 +42,7 @@ const AgentTransactions = ({ agentId }) => {
     return (
       <div className="transactions">
         <div className="info">
-          <h2>Agent's Transactions</h2>
+          <h2>{`Agent's Transactions`}</h2>
         </div>
         <TransactionsTable transactions={agentTransactions} />
       </div>

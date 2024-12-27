@@ -108,7 +108,7 @@ const CreateAgent = () => {
             placeholder="hour/day/week"
             class="input input-bordered"
           />
-          <span> "- The agent will work every X hours/days/weeks"</span>
+          <span> - The agent will work every X hours/days/weeks</span>
         </div>
         <div>
           <label for="preferences" class="label">

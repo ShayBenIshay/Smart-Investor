@@ -202,7 +202,7 @@ const AgentPortfolio = ({ agentId }) => {
 
   return (
     <div>
-      <h2>Agent's Portfolio</h2>
+      <h2>{`Agent's Portfolio`}</h2>
       <div className="graphs">
         <div className="box box4">
           <PieChartBox data={pieDataSorted} />

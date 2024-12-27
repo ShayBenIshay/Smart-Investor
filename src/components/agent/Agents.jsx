@@ -60,7 +60,7 @@ const Agents = () => {
         {agents.map((agent) => {
           const createdAt = dateToStr(agent.createdAt);
           return (
-            <button onClick={() => handleAgent(agent._id)}>
+            <button key={agent._id} onClick={() => handleAgent(agent._id)}>
               <p>Name: {agent.name}</p>
               <p>Timespan: {agent.timespan}</p>
               <p>Preference: {agent.preferences}</p>
