@@ -95,8 +95,11 @@ const Agent = ({ agentId }) => {
   useEffect(() => {
     const getAgent = async () => {
       const { user } = await app.authenticate();
-      if (user) {
-        const agentResponse = await app.service("agent").get(agentId);
+      const agentResponse = await app.service("agent").get(agentId);
+      console.log(agentResponse.userId);
+      console.log(agentResponse);
+      console.log(user._id);
+      if (user._id === agentResponse.userId) {
         setAgent(agentResponse);
       } else {
         setAgent(null);

@@ -1,7 +1,12 @@
 import Agents from "../../components/agent/Agents";
 
-const AgentPage = () => {
+export const metadata = {
+  title: "Agents Page",
+  description: "The page of the user's agents",
+};
+
+const AgentsPage = () => {
   return <Agents />;
 };
 
-export default AgentPage;
+export default AgentsPage;
