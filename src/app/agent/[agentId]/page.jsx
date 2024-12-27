@@ -14,15 +14,30 @@ try {
   console.error("failed to connect to Smart Investor Services");
 }
 
-export async function generateStaticParams() {
+export const getStaticPaths = async () => {
   const agents = await app.service("agent").find({
     query: {
       name: "find",
     },
   });
-  return agents.map((agent) => ({
-    agentId: agent.id, // Replace `id` with the actual field for agent ID
+
+  const paths = agents.map((agent) => ({
+    params: { agentId: agent.id.toString() },
   }));
+
+  return {
+    paths,
+    fallback: "blocking",
+  };
+};
+
+export async function getStaticProps({ params }) {
+  const { agentId } = params;
+  return {
+    props: {
+      agentId,
+    },
+  };
 }
 
 const AgentPage = async ({ params }) => {
