@@ -36,7 +36,7 @@ const AgentTransactions = ({ agentId }) => {
     };
 
     getAgentTransactions();
-  }, []);
+  }, [agentId]);
 
   if (agentTransactions) {
     return (

@@ -126,24 +126,7 @@ const AgentPortfolio = ({ agentId }) => {
       }
     };
     fetchData();
-  }, []);
-  // const agentTransactions = await app.service("transactions").find({
-  //   query: { userId: agentId },
-  // });
-  // const portfolioResponse = await app.service("portfolio").find({
-  //   query: { name: "find", userId: agentId },
-  // });
-  // const filteredPortfolio = portfolioResponse.data.filter(
-  //   (portfolio) => Object.keys(portfolio.agentId).length > 0
-  // );
-  // const portfolio = filteredPortfolio[0];
-  // const portfolio = portfolioResponse;
-  // const agentTotals = await calculateAgentTotals(
-  //   agentTransactions,
-  //   portfolio.cash
-  // );
-  // setAgentTotals(agentTotals);
-  // }
+  }, [agentId]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -219,3 +202,21 @@ const AgentPortfolio = ({ agentId }) => {
 };
 
 export default AgentPortfolio;
+
+// const agentTransactions = await app.service("transactions").find({
+//   query: { userId: agentId },
+// });
+// const portfolioResponse = await app.service("portfolio").find({
+//   query: { name: "find", userId: agentId },
+// });
+// const filteredPortfolio = portfolioResponse.data.filter(
+//   (portfolio) => Object.keys(portfolio.agentId).length > 0
+// );
+// const portfolio = filteredPortfolio[0];
+// const portfolio = portfolioResponse;
+// const agentTotals = await calculateAgentTotals(
+//   agentTransactions,
+//   portfolio.cash
+// );
+// setAgentTotals(agentTotals);
+// }

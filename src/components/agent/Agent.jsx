@@ -104,7 +104,7 @@ const Agent = ({ agentId }) => {
     };
 
     getAgent();
-  }, []);
+  }, [agentId]);
 
   if (agent) {
     return (
