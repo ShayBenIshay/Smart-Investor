@@ -16,7 +16,6 @@ const nextConfig = {
       },
     ],
   },
-  output: isProduction ? "export" : undefined,
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
@@ -24,8 +23,10 @@ const nextConfig = {
     };
     return config;
   },
-
   distDir: ".next",
+  experimental: {
+    appDir: true,
+  },
 };
 
 export default nextConfig;

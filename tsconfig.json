@@ -32,7 +32,8 @@
     "src/components/add/Add.jsx",
     "src/components/transactions/Transactions.jsx",
     "src/components/portfolio/charts/pieCartBox/PieChartBox.jsx",
-    "src/components/dataTable/DataTable.jsx"
+    "src/components/dataTable/DataTable.jsx",
+    "src/app/agent/[agentId]/page.jsx"
   ],
   "exclude": ["node_modules"]
 }
