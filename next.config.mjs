@@ -26,9 +26,6 @@ const nextConfig = {
   },
 
   distDir: ".next",
-  experimental: {
-    output: "standalone",
-  },
 };
 
 export default nextConfig;
