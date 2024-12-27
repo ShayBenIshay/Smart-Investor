@@ -23,12 +23,11 @@ const CreateAgent = () => {
 
   const handleCreate = async () => {
     //handle the creation of agent
-    const agent = getAgentInput();
-    console.log(agent);
+    const { name, cash, multiplier, timespan, preferences } = getAgentInput();
     const { user } = await app.reAuthenticate();
     await app
       .service("agent")
-      .create(agent)
+      .create({ func: "create", name, cash, multiplier, timespan, preferences })
       .then((dbAgent) => {
         console.log("agent created succesfully", dbAgent);
         window.location.href = "/agent";

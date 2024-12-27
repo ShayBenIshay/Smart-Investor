@@ -32,7 +32,6 @@ const handleCreate = async () => {
 };
 
 const Agents = () => {
-  //get all the agents of the user
   const [agents, setAgents] = useState(null);
 
   useEffect(() => {

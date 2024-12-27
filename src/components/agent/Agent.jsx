@@ -42,41 +42,48 @@ const handleActivate = async (agent) => {
       percentage: parseFloat(item.percentage.replace("%", "")),
       value: parseFloat(item.value.replace(/[$,]/g, "")),
     }));
+    let orders = [];
 
-    portfolioObject.forEach(async (trade) => {
-      if (trade.ticker !== "Cash") {
-        try {
-          const tradeResponse = await axios.get("http://127.0.0.1:5000/trade", {
-            params: {
+    await Promise.all(
+      portfolioObject.map(async (trade) => {
+        if (trade.ticker !== "Cash") {
+          try {
+            const tradeResponse = await axios.get(
+              "http://127.0.0.1:5000/trade",
+              {
+                params: {
+                  ticker: trade.ticker,
+                  from_date: "2024-09-16",
+                  to_date: "2024-12-27",
+                  timespan: "day",
+                },
+              }
+            );
+            const orderObject = {
+              buy: tradeResponse.data.buy,
+              papers: trade.value / tradeResponse.data.buy,
               ticker: trade.ticker,
-              from_date: "2024-12-16",
-              to_date: "2024-12-19",
-              timespan: "day",
-            },
-          });
-          const buyObject = {
-            buy: tradeResponse.data.buy,
-            papers: trade.value / tradeResponse.data.buy,
-            ticker: trade.ticker,
-          };
-          const executedAt = new Date();
-          //here i should use the POST agent service (but custom not create)
-          await app.service("transactions").create({
-            userId: agent._id,
-            ticker: buyObject.ticker,
-            price: buyObject.buy,
-            executedAt,
-            operation: "buy",
-            papers: buyObject.papers,
-          });
-          console.log(
-            `bought ${buyObject.papers} papers of ${buyObject.ticker} for ${buyObject.buy} each `
-          );
-        } catch (error) {
-          console.error("failed to calculate trade", error);
+            };
+            orders.push(orderObject);
+          } catch (error) {
+            console.error(
+              "Failed to calculate trade for ticker:",
+              trade.ticker,
+              error
+            );
+          }
         }
-      }
-    });
+      })
+    );
+    console.log("this is the orders the Agent is about to do");
+    console.log(orders);
+    console.log("executing orders");
+    console.log(orders);
+    const response = await app
+      .service("agent")
+      .create({ func: "trades", agentId: agent._id, orders });
+    console.log(response);
+    window.location.reload();
   } catch (error) {
     console.error("Error fetching portfolio:", error.message);
   }
@@ -119,3 +126,16 @@ const Agent = ({ agentId }) => {
 };
 
 export default Agent;
+
+// orders = [
+//   {
+//     buy: 606.79,
+//     papers: 8.10824173107665,
+//     ticker: "SPY",
+//   },
+//   {
+//     buy: 247.99,
+//     papers: 17.35957095044155,
+//     ticker: "AAPL",
+//   },
+// ];

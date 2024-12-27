@@ -6,13 +6,12 @@ import { usePathname } from "next/navigation";
 
 const NavLink = ({ item }) => {
   const pathName = usePathname();
-
+  let activeFlag = pathName.includes(item.path);
+  if (activeFlag && pathName !== "/" && item.path === "/") activeFlag = false;
   return (
     <Link
       href={item.path}
-      className={`${styles.container} ${
-        pathName === item.path && styles.active
-      }`}
+      className={`${styles.container} ${activeFlag && styles.active}`}
     >
       {item.title}
     </Link>
