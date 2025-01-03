@@ -4,7 +4,7 @@ import { useState } from "react";
 import styles from "./wallet.module.css";
 import { useFeathers } from "@/services/feathers";
 
-const Wallet = ({ liquid: initialLiquid }) => {
+const Wallet = ({ liquid: initialLiquid, onWalletUpdate }) => {
   const [liquid, setLiquid] = useState(initialLiquid);
   const [amount, setAmount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +31,7 @@ const Wallet = ({ liquid: initialLiquid }) => {
         .patch(portfolio._id, { cash: updatedWallet });
       setLiquid(updatedWallet);
       setAmount("");
+      onWalletUpdate();
     } catch (error) {
       console.error("Deposit failed:", error);
       alert("Deposit failed. Please try again.");
@@ -66,6 +67,7 @@ const Wallet = ({ liquid: initialLiquid }) => {
         .patch(portfolio._id, { cash: updatedWallet });
       setLiquid(updatedWallet);
       setAmount("");
+      onWalletUpdate();
     } catch (error) {
       console.error("Withdrawal failed:", error);
       alert("Withdrawal failed. Please try again.");

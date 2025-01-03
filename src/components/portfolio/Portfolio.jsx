@@ -100,6 +100,11 @@ const PortfolioComponent = () => {
       .sort((a, b) => b.percentage - a.percentage);
   }, [totals]);
 
+  // Add this callback function to handle wallet updates
+  const handleWalletUpdate = async () => {
+    await fetchPortfolioData();
+  };
+
   if (loading) {
     return (
       <div className="portfolio-container">
@@ -152,7 +157,10 @@ const PortfolioComponent = () => {
             </div>
           </div>
           <div className="wallet-section">
-            <Wallet liquid={portfolio.cash || 0} />
+            <Wallet
+              liquid={portfolio.cash || 0}
+              onWalletUpdate={handleWalletUpdate}
+            />
           </div>
         </div>
         <div className="table-container">
