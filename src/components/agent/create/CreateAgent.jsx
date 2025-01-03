@@ -1,138 +1,161 @@
 "use client";
 
-import { useRef } from "react";
-import feathers from "@feathersjs/feathers";
-import rest from "@feathersjs/rest-client";
-import axios from "axios";
-import authentication from "@feathersjs/authentication-client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useFeathers } from "@/services/feathers";
+import styles from "./createAgent.module.css";
 
 const CreateAgent = () => {
-  const appRef = useRef(null);
-  if (!appRef.current) {
-    const app = feathers();
-    const restClient = rest(process.env.NEXT_PUBLIC_REST_SERVICES_CLIENT_URL);
-    app.configure(restClient.axios(axios));
-    app.configure(
-      authentication({
-        storage: typeof window !== "undefined" ? window.localStorage : null,
-      })
-    );
-    appRef.current = app;
-  }
-  const app = appRef.current;
+  const router = useRouter();
+  const app = useFeathers();
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    cash: "",
+    multiplier: "",
+    timespan: "",
+    preferences: "",
+  });
 
-  const handleCreate = async () => {
-    //handle the creation of agent
-    const { name, cash, multiplier, timespan, preferences } = getAgentInput();
-    const { user } = await app.reAuthenticate();
-    await app
-      .service("agent")
-      .create({ func: "create", name, cash, multiplier, timespan, preferences })
-      .then((dbAgent) => {
-        console.log("agent created succesfully", dbAgent);
-        window.location.href = "/agent";
-      })
-      .catch((error) => {
-        console.error("Error creating agent: ", error);
-      });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const getAgentInput = () => {
-    const agent = {
-      name: document.querySelector('[name="name"]').value,
-      cash: document.querySelector('[name="cash"]').value,
-      multiplier: document.querySelector('[name="multiplier"]').value,
-      timespan: document.querySelector('[name="timespan"]').value,
-      preferences: document.querySelector('[name="preferences"]').value,
-    };
-    if (
-      !(
-        agent.name &&
-        agent.cash &&
-        agent.multiplier &&
-        agent.timespan &&
-        agent.preferences
-      )
-    ) {
+  const handleCreate = async (e) => {
+    e.preventDefault();
+
+    // Validate all fields are filled
+    if (!Object.values(formData).every((value) => value)) {
+      alert("Please fill in all fields");
       return;
     }
-    document.querySelector('[name="name"]').value = "";
-    document.querySelector('[name="cash"]').value = "";
-    document.querySelector('[name="multiplier"]').value = "";
-    document.querySelector('[name="timespan"]').value = "";
-    document.querySelector('[name="preferences"]').value = "";
 
-    return agent;
+    setIsLoading(true);
+    try {
+      await app.reAuthenticate();
+
+      // Format the data properly before sending
+      const agentData = {
+        func: "create",
+        name: formData.name,
+        cash: parseFloat(formData.cash), // Ensure it's a number
+        multiplier: parseInt(formData.multiplier, 10), // Ensure it's an integer
+        timespan: formData.timespan,
+        preferences: formData.preferences,
+      };
+
+      // Validate cash is a valid number
+      if (isNaN(agentData.cash)) {
+        alert("Please enter a valid cash amount");
+        return;
+      }
+
+      await app.service("agent").create(agentData);
+      router.push("/agent");
+    } catch (error) {
+      console.error("Error creating agent: ", error?.data || error);
+      // More detailed error message
+      const errorMessage =
+        error?.data?.map((e) => e.message).join("\n") ||
+        "Failed to create agent. Please try again.";
+      alert(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
   return (
-    <div>
-      <div>
-        <h1>Create Matrix Agent</h1>
-      </div>
-      <form>
-        <div>
-          <label for="name" class="label">
-            <span class="label-text">Name: </span>
+    <div className={styles.container}>
+      <h1 className={styles.title}>Create Matrix Agent</h1>
+      <form className={styles.form} onSubmit={handleCreate}>
+        <div className={styles.formGroup}>
+          <label htmlFor="name" className={styles.label}>
+            Name:
           </label>
           <input
             type="text"
+            id="name"
             name="name"
-            placeholder="enter name"
-            class="input input-bordered"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Enter name"
+            className={styles.input}
+            disabled={isLoading}
           />
         </div>
-        <div>
-          <label for="cash" class="label">
-            <span class="label-text">Cash: </span>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="cash" className={styles.label}>
+            Cash:
           </label>
           <input
             type="number"
+            id="cash"
             name="cash"
-            placeholder="cash amount"
-            class="input input-bordered"
+            value={formData.cash}
+            onChange={handleChange}
+            placeholder="Cash amount"
+            className={styles.input}
+            disabled={isLoading}
           />
         </div>
-        <div>
-          <label for="execution" class="label">
-            <span class="label-text">Execution: </span>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="execution" className={styles.label}>
+            Execution:
           </label>
-          <input
-            type="number"
-            name="multiplier"
-            placeholder="Number"
-            class="input input-bordered"
-          />
-          <input
-            type="text"
-            name="timespan"
-            placeholder="hour/day/week"
-            class="input input-bordered"
-          />
-          <span> - The agent will work every X hours/days/weeks</span>
+          <div className={styles.executionInputs}>
+            <input
+              type="number"
+              name="multiplier"
+              value={formData.multiplier}
+              onChange={handleChange}
+              placeholder="Number"
+              className={styles.input}
+              disabled={isLoading}
+            />
+            <input
+              type="text"
+              name="timespan"
+              value={formData.timespan}
+              onChange={handleChange}
+              placeholder="hour/day/week"
+              className={styles.input}
+              disabled={isLoading}
+            />
+          </div>
+          <span className={styles.hint}>
+            The agent will work every X hours/days/weeks
+          </span>
         </div>
-        <div>
-          <label for="preferences" class="label">
-            <p class="label-text">Preferences: </p>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="preferences" className={styles.label}>
+            Preferences:
           </label>
           <textarea
             id="preferences"
             name="preferences"
+            value={formData.preferences}
+            onChange={handleChange}
             rows="5"
-            cols="33"
             placeholder="Enter your preferences"
-            class="input input-bordered"
-          ></textarea>
+            className={styles.textarea}
+            disabled={isLoading}
+          />
         </div>
-        <div>
-          <button type="button" onClick={handleCreate}>
-            Create Agent
-          </button>
-        </div>
-        {/* <div>
-          <button id="signup" type="button" onClick={handleSignup}>
-            Signup
-          </button>
-        </div> */}
+
+        <button
+          type="submit"
+          className={styles.submitButton}
+          disabled={isLoading}
+        >
+          {isLoading ? "Creating..." : "Create Agent"}
+        </button>
       </form>
     </div>
   );

@@ -6,12 +6,17 @@ import "./pieChartBox.scss";
 const PieChartBox = ({ data }) => {
   return (
     <div className="pieChartBox">
-      <h1>Holdings</h1>
       <div className="chart">
         <ResponsiveContainer width="99%" height={300}>
           <PieChart>
             <Tooltip
-              contentStyle={{ background: "white", borderRadius: "5px" }}
+              contentStyle={{
+                background: "var(--bgSoft)",
+                borderRadius: "8px",
+                border: "none",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+              }}
+              itemStyle={{ color: "var(--textSoft)" }}
             />
             <Pie
               data={data}
@@ -19,9 +24,11 @@ const PieChartBox = ({ data }) => {
               outerRadius={"90%"}
               paddingAngle={5}
               dataKey="value"
+              animationDuration={750}
+              animationBegin={0}
             >
               {data.map((item) => (
-                <Cell key={item.name} fill={item.color} />
+                <Cell key={item.name} fill={item.color} className="pie-cell" />
               ))}
             </Pie>
           </PieChart>
@@ -32,9 +39,9 @@ const PieChartBox = ({ data }) => {
           <div className="option" key={item.name}>
             <div className="title">
               <div className="dot" style={{ backgroundColor: item.color }} />
-              <span>{item.name}</span>
+              <span className="name">{item.name}</span>
             </div>
-            <span>{item.value}</span>
+            <span className="value">{item.value}%</span>
           </div>
         ))}
       </div>

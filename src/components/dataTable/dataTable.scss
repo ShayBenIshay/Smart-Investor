@@ -1,37 +1,139 @@
 .dataTable {
   .dataGrid {
-    background: white;
-    padding: 20px;
-    .MuiDataGrid-cell {
-      text-align: left;
+    background: transparent;
+    border: none;
+
+    // Header styling
+    .MuiDataGrid-columnHeaders {
+      background-color: var(--bgSoft);
+      border: none;
+      color: #000;
+      font-size: 14px;
+      min-height: 50px !important;
+
+      .MuiDataGrid-columnHeader {
+        &:focus,
+        &:focus-within {
+          outline: none;
+        }
+      }
     }
+
+    // Cell styling
+    .MuiDataGrid-cell {
+      border-color: var(--bgSoft);
+      color: #000;
+      font-size: 14px;
+
+      &:focus,
+      &:focus-within {
+        outline: none;
+      }
+    }
+
+    // Row styling
+    .MuiDataGrid-row {
+      &:hover {
+        background-color: var(--bgSoft);
+
+        .MuiDataGrid-cell {
+          color: #fff;
+        }
+      }
+    }
+
+    // Toolbar styling
     .MuiDataGrid-toolbarContainer {
       flex-direction: row-reverse;
+      padding: 8px;
+      gap: 8px;
+
+      .MuiButtonBase-root {
+        color: #000;
+
+        &:hover {
+          color: var(--btn);
+        }
+      }
+
+      .MuiInputBase-root {
+        color: #000;
+        background-color: transparent;
+        border-radius: 8px;
+        padding: 4px 8px;
+
+        &::before,
+        &::after {
+          display: none;
+        }
+
+        input {
+          padding: 4px 8px;
+
+          &::placeholder {
+            color: #000;
+            opacity: 0.7;
+          }
+        }
+      }
     }
 
-    img {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      object-fit: cover;
+    // Pagination styling
+    .MuiDataGrid-footerContainer {
+      background-color: transparent;
+      border: none;
+
+      .MuiTablePagination-root {
+        color: #000;
+      }
+
+      .MuiButtonBase-root {
+        color: #000;
+
+        &:hover {
+          color: var(--btn);
+        }
+
+        &.Mui-disabled {
+          opacity: 0.5;
+        }
+      }
     }
 
+    // Action column styling
     .action {
       display: flex;
       gap: 15px;
       align-items: center;
-      padding: 15px 0px;
 
       img {
         width: 20px;
         height: 20px;
         cursor: pointer;
+        opacity: 0.7;
+        transition: all 0.3s ease;
+
+        &:hover {
+          opacity: 1;
+          transform: scale(1.1);
+        }
       }
     }
-    .delete {
-      display: flex;
-      justify-content: center;
-      align-items: center;
+
+    // Remove default focus outlines
+    * {
+      &:focus {
+        outline: none !important;
+      }
+    }
+
+    // Checkbox styling
+    .MuiCheckbox-root {
+      color: var(--textSoft);
+
+      &.Mui-checked {
+        color: var(--btn);
+      }
     }
   }
 }

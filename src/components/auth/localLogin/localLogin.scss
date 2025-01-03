@@ -1,0 +1,120 @@
+@import "../../../styles/variables.scss";
+
+.login {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .modal {
+    padding: 50px;
+    border-radius: 10px;
+    background-color: var(--bgSoft);
+    position: relative;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+
+    h1 {
+      margin-bottom: 40px;
+      font-size: 24px;
+      text-align: center;
+      color: var(--text);
+    }
+
+    .error-message {
+      color: #ff4d4d;
+      margin-bottom: 20px;
+      text-align: center;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: rgba(255, 77, 77, 0.1);
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+
+      .item {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+
+        label {
+          font-size: 14px;
+          color: var(--textSoft);
+        }
+
+        input {
+          width: 100%;
+          padding: 12px;
+          background-color: var(--bg);
+          color: var(--text);
+          border: 1px solid var(--btn);
+          border-radius: 5px;
+          outline: none;
+          font-size: 14px;
+
+          &:focus {
+            border-color: var(--text);
+          }
+
+          &::placeholder {
+            color: var(--textSoft);
+          }
+        }
+      }
+
+      button {
+        width: 100%;
+        padding: 12px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 14px;
+        transition: all 0.3s ease;
+
+        &:first-of-type {
+          margin-top: 10px;
+          background-color: var(--btn);
+          color: white;
+
+          &:hover:not(:disabled) {
+            background-color: darken(#3673fd, 10%);
+            transform: translateY(-2px);
+          }
+        }
+
+        &:last-of-type {
+          background-color: white;
+          color: var(--btn);
+          border: 1px solid var(--btn);
+
+          &:hover:not(:disabled) {
+            transform: translateY(-2px);
+          }
+        }
+
+        &:disabled {
+          background-color: #95a5a6;
+          color: white;
+          border: none;
+          cursor: not-allowed;
+        }
+
+        &:active:not(:disabled) {
+          transform: translateY(0);
+        }
+      }
+    }
+  }
+}

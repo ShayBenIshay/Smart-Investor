@@ -1,39 +1,45 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useFeathers } from "@/services/feathers";
 import Agent from "@/components/agent/Agent";
-import feathers from "@feathersjs/feathers";
-import socketio from "@feathersjs/socketio-client";
-import io from "socket.io-client";
-import authentication from "@feathersjs/authentication-client";
+import { useRouter } from "next/navigation";
 
-let app;
-try {
-  const socket = io(process.env.NEXT_PUBLIC_REST_SERVICES_CLIENT_URL);
-  app = feathers();
-  app.configure(socketio(socket));
-  app.configure(authentication());
-} catch (error) {
-  console.error("failed to connect to Smart Investor Services");
+export default function AgentPage({ params }) {
+  const [agent, setAgent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const app = useFeathers();
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchAgent = async () => {
+      try {
+        // First check authentication
+        try {
+          await app.reAuthenticate();
+        } catch (authError) {
+          console.error("Authentication failed:", authError);
+          router.push("/login"); // Redirect to login if not authenticated
+          return;
+        }
+
+        // Then fetch the agent
+        const result = await app.service("agent").get(params.agentId);
+        setAgent(result);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAgent();
+  }, [params.agentId, app, router]);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!agent) return <div>Agent not found</div>;
+
+  return <Agent agent={agent} />;
 }
-
-export const metadata = {
-  title: "Agent Page",
-  description: "The Agent page",
-};
-
-export async function generateStaticParams() {
-  const agents = await app.service("agent").find({
-    query: {
-      name: "find",
-    },
-  });
-  console.log(agents);
-  return agents.map((agent) => ({
-    agentId: agent._id.toString(),
-  }));
-}
-
-const AgentPage = ({ params }) => {
-  const { agentId } = params;
-  return <Agent agentId={agentId} />;
-};
-
-export default AgentPage;

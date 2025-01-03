@@ -4,60 +4,54 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import styles from "./home.module.css";
 import { useRouter } from "next/navigation";
-
-import feathers from "@feathersjs/feathers";
-import socketio from "@feathersjs/socketio-client";
-import io from "socket.io-client";
-import authentication from "@feathersjs/authentication-client";
-
-let app;
-try {
-  const socket = io(process.env.NEXT_PUBLIC_REST_SERVICES_CLIENT_URL);
-  app = feathers();
-  app.configure(socketio(socket));
-  app.configure(authentication());
-} catch (error) {
-  console.error("failed to connect to Smart Investor Services");
-}
+import { useFeathers } from "@/services/feathers";
 
 export default function Home() {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const app = useFeathers();
 
   useEffect(() => {
     const getUser = async () => {
-      const { user: currentUser } = await app.authenticate();
-      if (currentUser) {
+      try {
+        // Try to reauthenticate with stored token
+        const { user: currentUser } = await app.reAuthenticate();
         setUser(currentUser);
-      } else {
+      } catch (error) {
+        console.error("Authentication error:", error);
         setUser(null);
+      } finally {
+        setLoading(false);
       }
     };
 
     getUser();
-  }, []);
+  }, [app]);
 
-  const router = useRouter();
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div className={styles.container}>
       <div className={styles.textContainer}>
-        <h1 className={styles.title}>Smart Investor</h1>
-        <h2 className={styles.subtitle}>Welcome {user?.email}</h2>
+        <h1 className={styles.title}>Smart Investor Platform.</h1>
+        <h2 className={styles.subtitle}>
+          {user ? `Welcome ${user.email}` : "Welcome Guest"}
+        </h2>
         <p className={styles.desc}>How can Smart Investor help you today?</p>
         <div className={styles.buttons}>
-          <a href="/transactions">
-            <button className={styles.transactionsButton}>
-              Create Transaction
-            </button>
-          </a>
-          <a href="/portfolio">
-            <button
-              className={styles.portfolioButton}
-              onClick={() => router.push("/portfolio")}
-            >
-              View Portfolio
-            </button>
-          </a>
+          <button
+            className={styles.transactionsButton}
+            onClick={() => router.push("/transactions")}
+          >
+            Create Transaction
+          </button>
+          <button
+            className={styles.portfolioButton}
+            onClick={() => router.push("/portfolio")}
+          >
+            View Portfolio
+          </button>
         </div>
       </div>
       <div className={styles.imgContainer}>

@@ -1,38 +1,57 @@
 .container {
   display: flex;
   gap: 100px;
+  margin-top: 50px;
+  align-items: center;
 }
 
 .textContainer {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 50px;
+  gap: 30px;
 }
 
 .title {
-  font-size: 96px;
+  font-size: 72px;
+  background: linear-gradient(to right, var(--primary), var(--btn));
+  /* -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; */
+  background-clip: text;
+  color: var(--textColor);
+  /* color: whitesmoke; */
+  margin-bottom: 10px;
+  font-weight: bold;
 }
+
 .subtitle {
-  font-size: 56px;
+  font-size: 36px;
+  color: var(--textSoft);
 }
 
 .desc {
   font-size: 20px;
+  line-height: 1.5;
+  margin: 20px 0;
+  color: var(--textSoft);
 }
 
 .buttons {
   display: flex;
   gap: 20px;
+  margin-top: 20px;
 }
 
 .transactionsButton,
 .portfolioButton {
-  padding: 20px;
-  min-width: 150px;
+  padding: 15px 30px;
+  min-width: 180px;
   cursor: pointer;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
 .transactionsButton {
@@ -40,35 +59,82 @@
   color: var(--text);
 }
 
-.brands {
-  width: 500px;
-  height: 50px;
-  position: relative;
-  filter: grayscale(1);
+.transactionsButton:hover {
+  background-color: color-mix(in srgb, var(--btn) 85%, white);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.portfolioButton {
+  background-color: transparent;
+  border: 2px solid var(--btn);
+  color: var(--textSoft);
+}
+
+.portfolioButton:hover {
+  background-color: var(--btn);
+  color: var(--text);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .imgContainer {
   flex: 1;
   position: relative;
+  height: 500px;
+}
+
+.heroImg {
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 1024px) {
   .container {
     flex-direction: column;
     text-align: center;
+    gap: 50px;
   }
 
   .buttons {
     justify-content: center;
   }
+
+  .title {
+    font-size: 56px;
+  }
+
+  .subtitle {
+    font-size: 28px;
+  }
 }
 
 @media (max-width: 768px) {
   .title {
-    font-size: 64px;
+    font-size: 42px;
   }
 
-  .brands {
+  .subtitle {
+    font-size: 24px;
+  }
+
+  .desc {
+    font-size: 18px;
+  }
+
+  .buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .transactionsButton,
+  .portfolioButton {
     width: 100%;
+    max-width: 300px;
+  }
+
+  .imgContainer {
+    height: 300px;
   }
 }

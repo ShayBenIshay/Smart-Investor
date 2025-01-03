@@ -1,146 +1,207 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "./transactions.scss";
 import Add from "../add/Add";
-import feathers from "@feathersjs/feathers";
-import socketio from "@feathersjs/socketio-client";
-import io from "socket.io-client";
-import authentication from "@feathersjs/authentication-client";
-import TransactionsTable from "@/components/transactions/transactionsTable/TransactionsTable";
-
-let app;
-try {
-  const socket = io(process.env.NEXT_PUBLIC_REST_SERVICES_CLIENT_URL);
-  app = feathers();
-  app.configure(socketio(socket));
-  app.configure(authentication());
-} catch (error) {
-  console.error("failed to connect to Smart Investor Services");
-}
-
-export const transactionFormInput = [
-  {
-    label: "Stock Ticker",
-    element: "input",
-    name: "ticker",
-    placeholder: "Ticker",
-    type: "string",
-  },
-  {
-    label: "Transaction Date",
-    element: "datePicker",
-    name: "executedAt",
-    placeholder: "Date",
-    type: "string",
-  },
-  {
-    label: "Stock Price",
-    element: "input",
-    name: "price",
-    placeholder: "Price",
-    type: "number",
-  },
-  {
-    label: "Operation(Buy/Sell)",
-    element: "select",
-    name: "operation",
-    placeholder: "Buy/Sell",
-    type: "string",
-  },
-  {
-    label: "Papers",
-    element: "input",
-    name: "papers",
-    placeholder: "papers",
-    type: "number",
-  },
-];
+import { useFeathers } from "@/services/feathers";
+import TransactionsTable from "./transactionsTable/TransactionsTable";
+import { transactionFormInput } from "@/config/transactionForm";
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState(null);
-
-  useEffect(() => {
-    const getTransactions = async () => {
-      const { user } = await app.authenticate();
-      if (user) {
-        const queryResponse = await app.service("transactions").find({
-          query: {
-            userId: user._id,
-          },
-        });
-        setTransactions(queryResponse);
-      } else {
-        setTransactions(null);
-      }
-    };
-
-    getTransactions();
-  }, []);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
 
-  const handleDateChange = async (ticker, date) => {
-    let cachedPrice;
-    try {
-      const queryResponse = await app.service("cache").find({
-        query: {
-          ticker,
-          date,
-        },
-      });
-      cachedPrice = queryResponse.closePrice || null;
-    } catch (error) {
-      cachedPrice = null;
-    }
-    if (cachedPrice) {
-      return { close: cachedPrice };
-    }
+  const app = useFeathers();
+
+  const fetchTransactions = useCallback(async () => {
+    setLoading(true);
+    setError(null);
 
     try {
-      const queryResponse = await app.service("throttle").find({
+      const { user } = await app.authenticate();
+      if (!user) {
+        setTransactions(null);
+        return;
+      }
+
+      const queryResponse = await app.service("transactions").find({
         query: {
-          name: "open-close",
-          ticker,
-          date,
+          userId: user._id,
         },
       });
-      if (!queryResponse) console.log(`query response was undefineddd`);
-      const { close: closePrice } = queryResponse[0];
-
-      app.service("cache").create({
-        ticker,
-        date,
-        closePrice,
-      });
-      return closePrice;
-    } catch (error) {
-      console.log(
-        `Exceeded api threshold, can't fetch price for ${ticker}_${date}`
-      );
-      // throw Error(
-      //   `Exceeded api threshold, can't fetch price for ${ticker}_${date}`
-      // );
+      setTransactions(queryResponse);
+    } catch (err) {
+      setError(err.message);
+      console.error("Error fetching transactions:", err);
+    } finally {
+      setLoading(false);
     }
-  };
-  if (transactions) {
+  }, [app]);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
+
+  const handleDateChange = useCallback(
+    async (ticker, date) => {
+      // First try to get price from cache
+      try {
+        const cachedData = await app.service("cache").find({
+          query: {
+            ticker,
+            date,
+          },
+        });
+
+        if (cachedData.closePrice) {
+          return { close: cachedData.closePrice };
+        }
+      } catch (error) {
+        console.error("Cache lookup failed:", error);
+      }
+
+      // If not in cache, fetch from API
+      try {
+        const queryResponse = await app.service("throttle").find({
+          query: {
+            name: "open-close",
+            ticker,
+            date,
+          },
+        });
+
+        if (!queryResponse?.length) {
+          throw new Error("No price data available");
+        }
+
+        const { close: closePrice } = queryResponse[0];
+
+        // Cache the result
+        await app.service("cache").create({
+          ticker,
+          date,
+          closePrice,
+        });
+
+        return { close: closePrice };
+      } catch (error) {
+        console.error(`Failed to fetch price for ${ticker} on ${date}:`, error);
+        throw new Error(`Unable to fetch price for ${ticker} on ${date}`);
+      }
+    },
+    [app]
+  );
+
+  const handleAddTransaction = useCallback(
+    async (formData) => {
+      try {
+        const { user } = await app.authenticate();
+        if (!user) {
+          throw new Error("User not authenticated");
+        }
+
+        const transactionData = {
+          ...formData,
+          userId: user._id,
+          executedAt: new Date(formData.executedAt).toISOString(),
+          price: parseFloat(formData.price),
+          papers: parseInt(formData.papers, 10),
+        };
+
+        await app.service("transactions").create(transactionData);
+        setOpen(false);
+        fetchTransactions(); // Refresh the list
+      } catch (error) {
+        console.error("Failed to add transaction:", error);
+        setError(error.message);
+      }
+    },
+    [app, fetchTransactions]
+  );
+
+  if (loading) {
     return (
-      <div className="transactions">
-        <div className="info">
-          <h1>Transactions</h1>
-          <button onClick={() => setOpen(true)}>Add New Transactions</button>
-        </div>
-        <TransactionsTable transactions={transactions} />
+      <div className="transactions loading">
+        <div className="loading-spinner" />
+        <p>Loading transactions...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="transactions error">
+        <h1>Transactions</h1>
+        <p className="error-message">Error: {error}</p>
+        <button onClick={fetchTransactions} className="retry-button">
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  if (!transactions || transactions.length === 0) {
+    return (
+      <div className="transactions empty">
+        <h1>Transactions</h1>
+        <p>No transactions found</p>
+        <button onClick={() => setOpen(true)} className="add-button">
+          Add New Transaction
+        </button>
         {open && (
           <Add
-            slug="transaction"
+            slug="transactions"
             formInput={transactionFormInput}
             setOpen={setOpen}
             onDateChange={handleDateChange}
+            onSubmit={handleAddTransaction}
+            initialValues={{
+              operation: "buy",
+              executedAt: new Date().toISOString().split("T")[0],
+              price: "",
+              papers: "",
+              ticker: "",
+            }}
           />
         )}
       </div>
     );
   }
+
+  return (
+    <div className="transactions">
+      <div className="info">
+        <h1>Transactions</h1>
+        <button onClick={() => setOpen(true)} className="add-button">
+          Add New Transaction
+        </button>
+      </div>
+      <div className="table-container">
+        <TransactionsTable
+          transactions={transactions}
+          onRefresh={fetchTransactions}
+        />
+      </div>
+      {open && (
+        <Add
+          slug="transactions"
+          formInput={transactionFormInput}
+          setOpen={setOpen}
+          onDateChange={handleDateChange}
+          onSubmit={handleAddTransaction}
+          initialValues={{
+            operation: "buy",
+            executedAt: new Date().toISOString().split("T")[0],
+            price: "",
+            papers: "",
+            ticker: "",
+          }}
+        />
+      )}
+    </div>
+  );
 };
 
 export default Transactions;

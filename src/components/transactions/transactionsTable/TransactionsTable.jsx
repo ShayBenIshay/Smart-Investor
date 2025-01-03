@@ -1,5 +1,4 @@
 import DataTable from "@/components/dataTable/DataTable";
-import { create } from "domain";
 import Image from "next/image";
 
 const deleteTransaction = (id) => {
@@ -12,44 +11,61 @@ const columns = [
     type: "string",
     headerName: "Ticker",
     width: 100,
+    align: "center",
+    headerAlign: "center",
   },
   {
     field: "executedAt",
     type: "string",
     headerName: "Executed at",
     width: 150,
+    align: "center",
+    headerAlign: "center",
   },
   {
     field: "price",
     type: "number",
     headerName: "Price",
     width: 100,
+    align: "center",
+    headerAlign: "center",
   },
   {
     field: "papers",
     headerName: "Papers",
     type: "number",
     width: 90,
+    align: "center",
+    headerAlign: "center",
   },
   {
     field: "operation",
     headerName: "Operation",
     width: 90,
     type: "string",
+    align: "center",
+    headerAlign: "center",
   },
   {
     field: "createdAt",
     headerName: "Created At",
     width: 200,
     type: "string",
+    align: "center",
+    headerAlign: "center",
   },
   {
     field: "action",
     headerName: "Action",
     width: 200,
+    align: "center",
+    headerAlign: "center",
     renderCell: (params) => {
       return (
-        <div className="action">
+        <div
+          className="action"
+          style={{ width: "100%", display: "flex", justifyContent: "center" }}
+        >
           <Image src="/view.svg" alt="" width={20} height={20} />
           <div
             className="delete"
@@ -64,13 +80,17 @@ const columns = [
 ];
 
 const dateToStr = (dateNumber) => {
-  const formatString = new Date(parseInt(dateNumber.$date.$numberLong, 10))
-    .toISOString()
-    .split("T")[0];
-  return formatString;
+  try {
+    const timestamp = parseInt(dateNumber.$date.$numberLong, 10);
+    if (isNaN(timestamp)) throw new Error("Invalid timestamp");
+    return new Date(timestamp).toISOString().split("T")[0];
+  } catch (error) {
+    console.error("Error converting date:", error);
+    return "Invalid date";
+  }
 };
 
-const TransactionsTable = ({ transactions }) => {
+const TransactionsTable = ({ transactions = [] }) => {
   const rows = transactions?.map((row) => {
     const createdAt = dateToStr(row.createdAt);
 

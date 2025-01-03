@@ -1,20 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import feathers from "@feathersjs/feathers";
-import socketio from "@feathersjs/socketio-client";
-import io from "socket.io-client";
-import authentication from "@feathersjs/authentication-client";
-
-let app;
-try {
-  const socket = io(process.env.NEXT_PUBLIC_REST_SERVICES_CLIENT_URL);
-  app = feathers();
-  app.configure(socketio(socket));
-  app.configure(authentication());
-} catch (error) {
-  console.error("failed to connect to Smart Investor Services");
-}
+import { useRouter } from "next/navigation";
+import { useFeathers } from "@/services/feathers";
+import styles from "./agents.module.css";
 
 const dateToStr = (dateNumber) => {
   const formatString = new Date(parseInt(dateNumber.$date.$numberLong, 10))
@@ -23,21 +12,25 @@ const dateToStr = (dateNumber) => {
   return formatString;
 };
 
-const handleAgent = (agentId) => {
-  window.location.href = `/agent/${agentId}`;
-};
-
-const handleCreate = async () => {
-  window.location.href = "/agent/create";
-};
-
 const Agents = () => {
   const [agents, setAgents] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const app = useFeathers();
+  const router = useRouter();
+
+  const handleAgent = (agentId) => {
+    router.push(`/agent/${agentId}`);
+  };
+
+  const handleCreate = () => {
+    router.push("/agent/create");
+  };
 
   useEffect(() => {
     const getAgents = async () => {
-      const { user } = await app.authenticate();
-      if (user) {
+      try {
+        const { user } = await app.reAuthenticate();
         const queryResponse = await app.service("agent").find({
           query: {
             name: "find",
@@ -45,31 +38,74 @@ const Agents = () => {
           },
         });
         setAgents(queryResponse);
-      } else {
-        setAgents(null);
+      } catch (error) {
+        console.error("Failed to fetch agents:", error);
+        setError(error);
+      } finally {
+        setIsLoading(false);
       }
     };
+
     getAgents();
-  }, []);
-  if (agents) {
+  }, [app]);
+
+  if (error) {
     return (
-      <div>
-        <button type="button" onClick={handleCreate}>
+      <div className={styles.error}>Error loading agents: {error.message}</div>
+    );
+  }
+
+  if (isLoading) {
+    return <div className={styles.loading}>Loading...</div>;
+  }
+
+  if (!agents || agents.length === 0) {
+    return (
+      <div className={styles.container}>
+        <button
+          type="button"
+          onClick={handleCreate}
+          className={styles.createButton}
+        >
           Create New Agent
         </button>
+        <p className={styles.emptyMessage}>
+          No agents found. Create your first agent!
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.container}>
+      <button
+        type="button"
+        onClick={handleCreate}
+        className={styles.createButton}
+      >
+        Create New Agent
+      </button>
+      <div className={styles.agentGrid}>
         {agents.map((agent) => {
           const createdAt = dateToStr(agent.createdAt);
           return (
-            <button key={agent._id} onClick={() => handleAgent(agent._id)}>
-              <p>Name: {agent.name}</p>
-              <p>Timespan: {agent.timespan}</p>
-              <p>Preference: {agent.preferences}</p>
-              <p>Date of creation: {createdAt}</p>
+            <button
+              key={agent._id}
+              onClick={() => handleAgent(agent._id)}
+              className={styles.agentCard}
+            >
+              <h3 className={styles.agentName}>{agent.name}</h3>
+              <div className={styles.agentDetails}>
+                <p>Timespan: {agent.timespan}</p>
+                <p>Preference: {agent.preferences}</p>
+                <p>Created: {createdAt}</p>
+              </div>
             </button>
           );
         })}
       </div>
-    );
-  }
+    </div>
+  );
 };
+
 export default Agents;
