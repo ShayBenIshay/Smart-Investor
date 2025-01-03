@@ -71,25 +71,25 @@ const LocalLogin = () => {
       </div>
       <form>
         <div>
-          <label for="email" class="label">
-            <span class="label-text">Email: </span>
+          <label for="email" className="label">
+            <span className="label-text">Email: </span>
           </label>
           <input
             type="text"
             name="email"
             placeholder="enter email"
-            class="input input-bordered"
+            className="input input-bordered"
           />
         </div>
         <div>
-          <label for="password" class="label">
-            <span class="label-text">Password: </span>
+          <label for="password" className="label">
+            <span className="label-text">Password: </span>
           </label>
           <input
             type="password"
             name="password"
             placeholder="enter password"
-            class="input input-bordered"
+            className="input input-bordered"
           />
         </div>
         <div>
