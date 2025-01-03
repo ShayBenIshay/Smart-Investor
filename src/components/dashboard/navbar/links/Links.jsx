@@ -25,7 +25,6 @@ const links = [
   { type: "Public", title: "About", path: "/about" },
   { type: "Private", title: "Portfolio", path: "/portfolio" },
   { type: "Private", title: "Transactions", path: "/transactions" },
-  { type: "Private", title: "Agent", path: "/agent" },
   { type: "Private", title: "My Page", path: "/user" },
   { type: "Logout", title: "Logout", path: "/logout" },
   { type: "Login", title: "Login", path: "/login" },
