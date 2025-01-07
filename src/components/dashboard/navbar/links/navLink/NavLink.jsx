@@ -6,12 +6,21 @@ import { usePathname } from "next/navigation";
 
 const NavLink = ({ item }) => {
   const pathName = usePathname();
-  let activeFlag = pathName.includes(item.path);
-  if (activeFlag && pathName !== "/" && item.path === "/") activeFlag = false;
+
+  // Improved active state logic
+  const isActive = () => {
+    if (pathName === "/" && item.path === "/") return true;
+    if (pathName !== "/" && item.path !== "/") {
+      return pathName.startsWith(item.path);
+    }
+    return false;
+  };
+
   return (
     <Link
       href={item.path}
-      className={`${styles.container} ${activeFlag && styles.active}`}
+      className={`${styles.container} ${isActive() ? styles.active : ""}`}
+      aria-current={isActive() ? "page" : undefined}
     >
       {item.title}
     </Link>

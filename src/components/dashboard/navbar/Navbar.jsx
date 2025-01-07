@@ -6,15 +6,14 @@ import { useEffect, useRef, useState } from "react";
 
 const Navbar = () => {
   const [mobileMenu, setMobileMenu] = useState(false);
-  const toggleMenu = () => {
-    setMobileMenu(!mobileMenu);
-  };
+  const navbar = useRef();
 
   const handleClickOutside = (event) => {
     if (navbar.current && !navbar.current.contains(event.target)) {
       setMobileMenu(false);
     }
   };
+
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
@@ -22,17 +21,15 @@ const Navbar = () => {
     };
   }, []);
 
-  const navbar = useRef();
-
   return (
-    <div id="navbar" ref={navbar} className={styles.navbar}>
+    <nav ref={navbar} className={styles.navbar}>
       <Link href="/" className={styles.logo}>
         Smart Investor
       </Link>
       <div className={styles.linksContainer}>
-        <Links />
+        <Links mobileMenu={mobileMenu} setMobileMenu={setMobileMenu} />
       </div>
-    </div>
+    </nav>
   );
 };
 

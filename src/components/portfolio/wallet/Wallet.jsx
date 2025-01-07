@@ -2,73 +2,67 @@
 
 import { useState } from "react";
 import styles from "./wallet.module.css";
-import feathers from "@feathersjs/feathers";
-import socketio from "@feathersjs/socketio-client";
-import io from "socket.io-client";
-import authentication from "@feathersjs/authentication-client";
+import { useFeathers } from "@/services/feathers";
 
-let app;
-try {
-  const socket = io(process.env.NEXT_PUBLIC_REST_SERVICES_CLIENT_URL);
-  app = feathers();
-  app.configure(socketio(socket));
-  app.configure(authentication());
-} catch (error) {
-  console.error("failed to connect to Smart Investor Services");
-}
-
-const Wallet = ({ liquid: initialLiquid }) => {
+const Wallet = ({ liquid: initialLiquid, onWalletUpdate }) => {
   const [liquid, setLiquid] = useState(initialLiquid);
-  const [amount, setAmount] = useState();
+  const [amount, setAmount] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const app = useFeathers();
 
   const handleDeposit = async () => {
-    const deposit = Number(amount);
-    setAmount(0);
+    if (!amount || isLoading) return;
+    setIsLoading(true);
 
-    const { user } = await app.reAuthenticate();
-    const queryResponse = await app.service("portfolio").find({
-      query: {
-        name: "find",
-        userId: user._id,
-      },
-    });
-    const portfolio = queryResponse.data[0];
     try {
+      const deposit = Number(amount);
+      const { user } = await app.reAuthenticate();
+      const queryResponse = await app.service("portfolio").find({});
+      const portfolio = queryResponse.data[0];
+
       const updatedWallet = portfolio.cash + deposit;
       await app
         .service("portfolio")
         .patch(portfolio._id, { cash: updatedWallet });
       setLiquid(updatedWallet);
+      setAmount("");
+      onWalletUpdate();
     } catch (error) {
-      alert("Deposit failed");
+      console.error("Deposit failed:", error);
+      alert("Deposit failed. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleWithdrawal = async () => {
-    const withdrawal = Number(amount);
-    setAmount(0);
-
-    const { user } = await app.reAuthenticate();
-    const queryResponse = await app.service("portfolio").find({
-      query: {
-        userId: user._id,
-      },
-    });
-    const portfolio = queryResponse.data[0];
-
-    if (amount > portfolio.cash) {
-      alert("Insufficient funds!");
-    }
+    if (!amount || isLoading) return;
+    setIsLoading(true);
 
     try {
+      const withdrawal = Number(amount);
+      const { user } = await app.reAuthenticate();
+      const queryResponse = await app.service("portfolio").find({});
+      const portfolio = queryResponse.data[0];
+
+      if (Number(withdrawal) > Number(portfolio.cash)) {
+        alert("Insufficient funds!");
+        setIsLoading(false);
+        return;
+      }
+
       const updatedWallet = portfolio.cash - withdrawal;
       await app
         .service("portfolio")
         .patch(portfolio._id, { cash: updatedWallet });
-
       setLiquid(updatedWallet);
+      setAmount("");
+      onWalletUpdate();
     } catch (error) {
-      alert("Withdrawal failed");
+      console.error("Withdrawal failed:", error);
+      alert("Withdrawal failed. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -83,13 +77,22 @@ const Wallet = ({ liquid: initialLiquid }) => {
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
         placeholder="Enter amount"
+        disabled={isLoading}
       />
       <div className={styles.buttonContiner}>
-        <button className={styles.deposit} onClick={handleDeposit}>
-          Deposit
+        <button
+          className={styles.deposit}
+          onClick={handleDeposit}
+          disabled={isLoading}
+        >
+          {isLoading ? "Processing..." : "Deposit"}
         </button>
-        <button className={styles.withdraw} onClick={handleWithdrawal}>
-          Withdraw
+        <button
+          className={styles.withdraw}
+          onClick={handleWithdrawal}
+          disabled={isLoading}
+        >
+          {isLoading ? "Processing..." : "Withdraw"}
         </button>
       </div>
     </div>

@@ -1,0 +1,17 @@
+export const CHART_COLORS = [
+  "#0088FE",
+  "#00C49F",
+  "#FFBB28",
+  "#FF8042",
+  "#A28CF5",
+  "#FF6666",
+  "#FF5C93",
+  "#00B8D9",
+  "#FFC400",
+  "#36B37E",
+  "#AAB2BD",
+  "#FCF876",
+  "#B07D62",
+  "#8E8CD8",
+  "#FF9A76",
+];

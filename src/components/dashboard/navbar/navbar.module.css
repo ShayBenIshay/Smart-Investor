@@ -4,9 +4,26 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  padding: 0 20px;
+  position: sticky;
+  top: 0;
+  background-color: var(--bg);
+  z-index: 1000;
+  transition: all 0.3s ease;
 }
 
 .logo {
   font-size: 30px;
   font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.logo:hover {
+  color: var(--btn);
+}
+
+.linksContainer {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
 }

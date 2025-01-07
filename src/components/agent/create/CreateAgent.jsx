@@ -1,14 +1,15 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import feathers from "@feathersjs/feathers";
-import rest from "@feathersjs/rest-client";
-import axios from "axios";
-import authentication from "@feathersjs/authentication-client";
+import { useFeathers } from "@/services/feathers";
+import styles from "./createAgent.module.css";
 
 const CreateAgent = () => {
   const router = useRouter();
+  const app = useFeathers();
+  const [isLoading, setIsLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     cash: "",
@@ -16,22 +17,6 @@ const CreateAgent = () => {
     timespan: "",
     preferences: "",
   });
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const appRef = useRef(null);
-
-  if (!appRef.current) {
-    const app = feathers();
-    const restClient = rest(process.env.NEXT_PUBLIC_REST_SERVICES_CLIENT_URL);
-    app.configure(restClient.axios(axios));
-    app.configure(
-      authentication({
-        storage: typeof window !== "undefined" ? window.localStorage : null,
-      })
-    );
-    appRef.current = app;
-  }
-  const app = appRef.current;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,88 +28,115 @@ const CreateAgent = () => {
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    setError(null);
-    setIsLoading(true);
 
-    // Validation
+    // Validate all fields are filled
     if (!Object.values(formData).every((value) => value)) {
-      setError("All fields are required");
-      setIsLoading(false);
+      alert("Please fill in all fields");
       return;
     }
 
+    setIsLoading(true);
     try {
-      const { user } = await app.reAuthenticate();
-      await app.service("agent").create({
-        func: "create",
-        ...formData,
-      });
+      await app.reAuthenticate();
 
+      // Format the data properly before sending
+      const agentData = {
+        func: "create",
+        name: formData.name,
+        cash: parseFloat(formData.cash), // Ensure it's a number
+        multiplier: parseInt(formData.multiplier, 10), // Ensure it's an integer
+        timespan: formData.timespan,
+        preferences: formData.preferences,
+      };
+
+      // Validate cash is a valid number
+      if (isNaN(agentData.cash)) {
+        alert("Please enter a valid cash amount");
+        return;
+      }
+
+      await app.service("agent").create(agentData);
       router.push("/agent");
     } catch (error) {
-      setError(error.message);
-      console.error("Error creating agent: ", error);
+      console.error("Error creating agent: ", error?.data || error);
+      // More detailed error message
+      const errorMessage =
+        error?.data?.map((e) => e.message).join("\n") ||
+        "Failed to create agent. Please try again.";
+      alert(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div>
-      <h1>Create Matrix Agent</h1>
-      {error && <div className="error-message">{error}</div>}
-      <form onSubmit={handleCreate}>
-        <div>
-          <label htmlFor="name" className="label">
-            <span className="label-text">Name: </span>
+    <div className={styles.container}>
+      <h1 className={styles.title}>Create Matrix Agent</h1>
+      <form className={styles.form} onSubmit={handleCreate}>
+        <div className={styles.formGroup}>
+          <label htmlFor="name" className={styles.label}>
+            Name:
           </label>
           <input
             type="text"
+            id="name"
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder="enter name"
-            className="input input-bordered"
+            placeholder="Enter name"
+            className={styles.input}
+            disabled={isLoading}
           />
         </div>
-        <div>
-          <label htmlFor="cash" className="label">
-            <span className="label-text">Cash: </span>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="cash" className={styles.label}>
+            Cash:
           </label>
           <input
             type="number"
+            id="cash"
             name="cash"
             value={formData.cash}
             onChange={handleChange}
-            placeholder="cash amount"
-            className="input input-bordered"
+            placeholder="Cash amount"
+            className={styles.input}
+            disabled={isLoading}
           />
         </div>
-        <div>
-          <label htmlFor="execution" className="label">
-            <span className="label-text">Execution: </span>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="execution" className={styles.label}>
+            Execution:
           </label>
-          <input
-            type="number"
-            name="multiplier"
-            value={formData.multiplier}
-            onChange={handleChange}
-            placeholder="Number"
-            className="input input-bordered"
-          />
-          <input
-            type="text"
-            name="timespan"
-            value={formData.timespan}
-            onChange={handleChange}
-            placeholder="hour/day/week"
-            className="input input-bordered"
-          />
-          <span> - The agent will work every X hours/days/weeks</span>
+          <div className={styles.executionInputs}>
+            <input
+              type="number"
+              name="multiplier"
+              value={formData.multiplier}
+              onChange={handleChange}
+              placeholder="Number"
+              className={styles.input}
+              disabled={isLoading}
+            />
+            <input
+              type="text"
+              name="timespan"
+              value={formData.timespan}
+              onChange={handleChange}
+              placeholder="hour/day/week"
+              className={styles.input}
+              disabled={isLoading}
+            />
+          </div>
+          <span className={styles.hint}>
+            The agent will work every X hours/days/weeks
+          </span>
         </div>
-        <div>
-          <label htmlFor="preferences" className="label">
-            <p className="label-text">Preferences: </p>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="preferences" className={styles.label}>
+            Preferences:
           </label>
           <textarea
             id="preferences"
@@ -132,12 +144,17 @@ const CreateAgent = () => {
             value={formData.preferences}
             onChange={handleChange}
             rows="5"
-            cols="33"
             placeholder="Enter your preferences"
-            className="input input-bordered"
-          ></textarea>
+            className={styles.textarea}
+            disabled={isLoading}
+          />
         </div>
-        <button type="submit" disabled={isLoading}>
+
+        <button
+          type="submit"
+          className={styles.submitButton}
+          disabled={isLoading}
+        >
           {isLoading ? "Creating..." : "Create Agent"}
         </button>
       </form>

@@ -1,12 +1,66 @@
 .container {
   min-width: 100px;
-  padding: 10px;
+  padding: 10px 20px;
   border-radius: 20px;
   font-weight: 500;
   text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+  cursor: pointer;
+
+  /* Add hover effect indicator */
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background-color: var(--btn);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+  }
+
+  &:hover {
+    background-color: var(--bgSoft);
+    transform: translateY(-2px);
+
+    &::after {
+      width: 50%;
+    }
+  }
 }
 
 .active {
   background-color: var(--text);
   color: var(--bg);
+
+  &:hover {
+    background-color: var(--textSoft);
+
+    &::after {
+      width: 0;
+    }
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .container {
+    width: 100%;
+    min-width: 200px;
+    margin: 0 20px;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  .active {
+    background-color: var(--text);
+
+    &:hover {
+      background-color: var(--text);
+    }
+  }
 }

@@ -1,19 +1,20 @@
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import "./dataTable.scss";
 
-const DataTable = ({ columns, rows }) => {
+const DataTable = ({ columns, rows, pageSize = 10 }) => {
   let id = 1;
-  rows.map((row) => (row.id = id++));
+  rows?.map((row) => (row.id = id++));
+
   return (
     <div className="dataTable">
       <DataGrid
         className="dataGrid"
-        rows={rows}
+        rows={rows || []}
         columns={columns}
         initialState={{
           pagination: {
             paginationModel: {
-              pageSize: 10,
+              pageSize,
             },
           },
         }}
@@ -24,12 +25,13 @@ const DataTable = ({ columns, rows }) => {
             quickFilterProps: { debounceMs: 500 },
           },
         }}
-        pageSizeOptions={[5]}
+        pageSizeOptions={[5, 10, 25]}
         checkboxSelection
         disableRowSelectionOnClick
         disableColumnFilter
         disableDensitySelector
         disableColumnSelector
+        getRowClassName={() => "table-row"}
       />
     </div>
   );

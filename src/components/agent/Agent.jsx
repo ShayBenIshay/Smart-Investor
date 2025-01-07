@@ -129,16 +129,3 @@ const Agent = ({ agentId }) => {
 };
 
 export default Agent;
-
-// orders = [
-//   {
-//     buy: 606.79,
-//     papers: 8.10824173107665,
-//     ticker: "SPY",
-//   },
-//   {
-//     buy: 247.99,
-//     papers: 17.35957095044155,
-//     ticker: "AAPL",
-//   },
-// ];

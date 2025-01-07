@@ -1,108 +1,103 @@
 "use client";
 
-import { useRef } from "react";
-import feathers from "@feathersjs/feathers";
-import rest from "@feathersjs/rest-client";
-import axios from "axios";
-import authentication from "@feathersjs/authentication-client";
+import { useState } from "react";
+import { useFeathers } from "@/services/feathers";
+import "./localLogin.scss";
 
 const LocalLogin = () => {
-  const appRef = useRef(null);
-  if (!appRef.current) {
-    const app = feathers();
-    const restClient = rest(process.env.NEXT_PUBLIC_REST_SERVICES_CLIENT_URL);
-    app.configure(restClient.axios(axios));
-    app.configure(
-      authentication({
-        storage: typeof window !== "undefined" ? window.localStorage : null,
-      })
-    );
-    appRef.current = app;
-  }
-  const app = appRef.current;
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleSignup = async () => {
-    const credentials = getCredentials();
+  const app = useFeathers();
 
-    await app
-      .service("users")
-      .create(credentials)
-      .then((user) => {
-        console.log("User created successfully:", user);
-      })
-      .catch((error) => {
-        console.error("Error creating user:", error);
-      });
-
-    handleLogin();
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
-  const handleLogin = async () => {
-    const credentials = getCredentials();
-    if (!(credentials?.email && credentials?.password)) {
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const user = await app.service("users").create(formData);
+      console.log("User created successfully:", user);
+      await handleLogin(e);
+    } catch (error) {
+      setError(error.message);
+      console.error("Error creating user:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (!formData.email || !formData.password) {
+      setError("Email and password are required");
       return;
     }
-    app
-      .authenticate({
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await app.authenticate({
         strategy: "local",
-        ...credentials,
-      })
-      .then((response) => {
-        console.log("Authenticated successfully", response);
-        window.location.href = "/";
-      })
-      .catch((error) => {
-        console.error("Authentication error", error);
+        ...formData,
       });
+      console.log("Authenticated successfully", response);
+      window.location.href = "/";
+    } catch (error) {
+      setError(error.message);
+      console.error("Authentication error", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const getCredentials = () => {
-    const user = {
-      email: document.querySelector('[name="email"]').value,
-      password: document.querySelector('[name="password"]').value,
-    };
-
-    return user;
-  };
   return (
-    <div>
-      <div>
+    <div className="login">
+      <div className="modal">
         <h1>Smart Investor</h1>
+        {error && <div className="error-message">{error}</div>}
+        <form onSubmit={handleLogin}>
+          <div className="item">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter email"
+              required
+            />
+          </div>
+          <div className="item">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter password"
+              required
+            />
+          </div>
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? "Loading..." : "Login"}
+          </button>
+          <button type="button" onClick={handleSignup} disabled={isLoading}>
+            {isLoading ? "Loading..." : "Signup"}
+          </button>
+        </form>
       </div>
-      <form>
-        <div>
-          <label for="email" className="label">
-            <span className="label-text">Email: </span>
-          </label>
-          <input
-            type="text"
-            name="email"
-            placeholder="enter email"
-            className="input input-bordered"
-          />
-        </div>
-        <div>
-          <label for="password" className="label">
-            <span className="label-text">Password: </span>
-          </label>
-          <input
-            type="password"
-            name="password"
-            placeholder="enter password"
-            className="input input-bordered"
-          />
-        </div>
-        <div>
-          <button id="login" type="button" onClick={handleLogin}>
-            Login
-          </button>
-        </div>
-        <div>
-          <button id="signup" type="button" onClick={handleSignup}>
-            Signup
-          </button>
-        </div>
-      </form>
     </div>
   );
 };
