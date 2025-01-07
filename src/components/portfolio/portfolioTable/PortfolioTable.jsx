@@ -1,9 +1,8 @@
 "use client";
-import { GridColDef } from "@mui/x-data-grid";
 import DataTable from "../../dataTable/DataTable";
 import { Typography } from "@mui/material";
 
-const columns: GridColDef[] = [
+const columns = [
   {
     field: "ticker",
     type: "string",
@@ -125,21 +124,7 @@ const columns: GridColDef[] = [
   },
 ];
 
-interface PortfolioTableProps {
-  rows: Array<{
-    ticker: string;
-    avgBuy: string;
-    totalSpent: string;
-    position: number;
-    currentPrice: string;
-    unrealizedPL: string;
-    currentValue: string;
-    percentage: string;
-    change: string;
-  }>;
-}
-
-const PortfolioTable = ({ rows }: PortfolioTableProps) => {
+const PortfolioTable = ({ rows }) => {
   const processedRows =
     rows?.map((row) => ({
       ...row,

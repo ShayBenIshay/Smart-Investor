@@ -78,7 +78,6 @@ const Transactions = () => {
               date,
               closePrice,
             };
-            console.log(cacheData);
             // Cache the result
             await app.service("cache").create(cacheData);
 
