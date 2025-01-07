@@ -92,7 +92,7 @@ const dateToStr = (dateNumber) => {
 
 const TransactionsTable = ({ transactions = [] }) => {
   const rows = transactions?.map((row) => {
-    const createdAt = dateToStr(row.createdAt);
+    const createdAt = row.createdAt.split("T")[0];
 
     const newRow = {
       ...row,

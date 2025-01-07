@@ -32,18 +32,11 @@ const PortfolioComponent = () => {
       const portfolioData = await app.service("portfolio").find({
         query: {
           name: "calculate",
-          userId: currentUser._id,
         },
       });
 
       // Fetch portfolio data for cash balance
-      const portfolioResponse = await app.service("portfolio").find({
-        query: {
-          name: "find",
-          userId: currentUser._id,
-        },
-      });
-
+      const portfolioResponse = await app.service("portfolio").find({});
       setTotals(portfolioData);
       setPortfolio(portfolioResponse.data[0]);
     } catch (error) {
@@ -130,7 +123,7 @@ const PortfolioComponent = () => {
     );
   }
 
-  if (!totals || !portfolio) {
+  if (!totals && !portfolio) {
     return (
       <div className="portfolio-container">
         <div className="empty-state">
@@ -153,18 +146,19 @@ const PortfolioComponent = () => {
         <div className="top-section">
           <div className="graphs">
             <div className="box4">
-              <PieChartBox data={pieData} showTitle={false} />
+              {totals && <PieChartBox data={pieData} showTitle={false} />}
+              {!totals && <p>No assets in portfolio</p>}
             </div>
           </div>
           <div className="wallet-section">
             <Wallet
-              liquid={portfolio.cash || 0}
+              liquid={portfolio?.cash || 0}
               onWalletUpdate={handleWalletUpdate}
             />
           </div>
         </div>
         <div className="table-container">
-          <PortfolioTable rows={tableRows} showTitle={false} />
+          {totals && <PortfolioTable rows={tableRows} showTitle={false} />}
         </div>
       </div>
     </div>

@@ -17,12 +17,7 @@ const Wallet = ({ liquid: initialLiquid, onWalletUpdate }) => {
     try {
       const deposit = Number(amount);
       const { user } = await app.reAuthenticate();
-      const queryResponse = await app.service("portfolio").find({
-        query: {
-          name: "find",
-          userId: user._id,
-        },
-      });
+      const queryResponse = await app.service("portfolio").find({});
       const portfolio = queryResponse.data[0];
 
       const updatedWallet = portfolio.cash + deposit;
@@ -47,12 +42,7 @@ const Wallet = ({ liquid: initialLiquid, onWalletUpdate }) => {
     try {
       const withdrawal = Number(amount);
       const { user } = await app.reAuthenticate();
-      const queryResponse = await app.service("portfolio").find({
-        query: {
-          name: "find",
-          userId: user._id,
-        },
-      });
+      const queryResponse = await app.service("portfolio").find({});
       const portfolio = queryResponse.data[0];
 
       if (Number(withdrawal) > Number(portfolio.cash)) {

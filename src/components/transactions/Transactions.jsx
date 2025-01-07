@@ -31,7 +31,7 @@ const Transactions = () => {
           userId: user._id,
         },
       });
-      setTransactions(queryResponse);
+      setTransactions(queryResponse.data);
     } catch (err) {
       setError(err.message);
       console.error("Error fetching transactions:", err);
@@ -55,40 +55,54 @@ const Transactions = () => {
           },
         });
 
-        if (cachedData.closePrice) {
-          return { close: cachedData.closePrice };
-        }
+        // Since the cache service now returns the specific price object
+        return { close: cachedData.closePrice };
       } catch (error) {
-        console.error("Cache lookup failed:", error);
-      }
-
-      // If not in cache, fetch from API
-      try {
-        const queryResponse = await app.service("throttle").find({
-          query: {
-            name: "open-close",
-            ticker,
-            date,
-          },
-        });
-
-        if (!queryResponse?.length) {
-          throw new Error("No price data available");
+        // Handle specific error types from cache service
+        if (error.name === "BadRequest") {
+          console.error("Invalid request:", error.message);
+          throw new Error("Invalid ticker symbol");
         }
 
-        const { close: closePrice } = queryResponse[0];
+        if (error.name === "NotFound") {
+          // If not in cache, proceed to fetch from API
+          try {
+            const queryResponse = await app.service("throttle").find({
+              query: {
+                name: "open-close",
+                ticker,
+                date,
+              },
+            });
 
-        // Cache the result
-        await app.service("cache").create({
-          ticker,
-          date,
-          closePrice,
-        });
+            if (!queryResponse?.length) {
+              throw new Error("No price data available");
+            }
 
-        return { close: closePrice };
-      } catch (error) {
-        console.error(`Failed to fetch price for ${ticker} on ${date}:`, error);
-        throw new Error(`Unable to fetch price for ${ticker} on ${date}`);
+            const { close: closePrice } = queryResponse[0];
+
+            const cacheData = {
+              ticker,
+              date,
+              closePrice,
+            };
+            console.log(cacheData);
+            // Cache the result
+            await app.service("cache").create(cacheData);
+
+            return { close: closePrice };
+          } catch (apiError) {
+            console.error(
+              `Failed to fetch price for ${ticker} on ${date}:`,
+              apiError
+            );
+            throw new Error(`Unable to fetch price for ${ticker} on ${date}`);
+          }
+        }
+
+        // Handle unexpected errors
+        console.error("Unexpected error during cache lookup:", error);
+        throw new Error("An unexpected error occurred");
       }
     },
     [app]
@@ -101,15 +115,12 @@ const Transactions = () => {
         if (!user) {
           throw new Error("User not authenticated");
         }
-
         const transactionData = {
           ...formData,
-          userId: user._id,
           executedAt: new Date(formData.executedAt).toISOString(),
           price: parseFloat(formData.price),
           papers: parseInt(formData.papers, 10),
         };
-
         await app.service("transactions").create(transactionData);
         setOpen(false);
         fetchTransactions(); // Refresh the list
