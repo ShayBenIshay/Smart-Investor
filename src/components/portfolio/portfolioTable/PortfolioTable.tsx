@@ -136,14 +136,19 @@ interface PortfolioTableProps {
     currentValue: string;
     percentage: string;
     change: string;
-    id: number;
   }>;
 }
 
 const PortfolioTable = ({ rows }: PortfolioTableProps) => {
+  const processedRows =
+    rows?.map((row) => ({
+      ...row,
+      _id: row.ticker,
+    })) || [];
+
   return (
     <div style={{ height: "100%", width: "100%" }}>
-      <DataTable columns={columns} rows={rows} pageSize={10} />
+      <DataTable columns={columns} rows={processedRows} pageSize={10} />
     </div>
   );
 };

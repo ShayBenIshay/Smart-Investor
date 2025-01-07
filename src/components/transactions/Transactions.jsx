@@ -6,12 +6,15 @@ import Add from "../add/Add";
 import { useFeathers } from "@/services/feathers";
 import TransactionsTable from "./transactionsTable/TransactionsTable";
 import { transactionFormInput } from "@/config/transactionForm";
+import { useRouter } from "next/navigation";
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
+  const [insufficientFunds, setInsufficientFunds] = useState(false);
+  const router = useRouter();
 
   const app = useFeathers();
 
@@ -44,7 +47,6 @@ const Transactions = () => {
 
   const handleDateChange = useCallback(
     async (ticker, date) => {
-      // First try to get price from cache
       try {
         const cachedData = await app.service("cache").find({
           query: {
@@ -53,16 +55,8 @@ const Transactions = () => {
           },
         });
 
-        // Since the cache service now returns the specific price object
-        return { close: cachedData.closePrice };
-      } catch (error) {
-        // Handle specific error types from cache service
-        if (error.name === "BadRequest") {
-          console.error("Invalid request:", error.message);
-          throw new Error("Invalid ticker symbol");
-        }
-
-        if (error.name === "NotFound") {
+        // Check if we got a "not in cache" message
+        if (cachedData.message && cachedData.message.includes("not in cache")) {
           // If not in cache, proceed to fetch from API
           try {
             const queryResponse = await app.service("throttle").find({
@@ -98,8 +92,11 @@ const Transactions = () => {
           }
         }
 
+        // If we have cache data, return it
+        return { close: cachedData.closePrice };
+      } catch (error) {
         // Handle unexpected errors
-        console.error("Unexpected error during cache lookup:", error);
+        console.error("Unexpected error during price lookup:", error);
         throw new Error("An unexpected error occurred");
       }
     },
@@ -119,16 +116,27 @@ const Transactions = () => {
           price: parseFloat(formData.price),
           papers: parseInt(formData.papers, 10),
         };
-        await app.service("transactions").create(transactionData);
+        const newTransaction = await app
+          .service("transactions")
+          .create(transactionData);
+        setTransactions((prev) => [...prev, newTransaction]);
         setOpen(false);
-        fetchTransactions(); // Refresh the list
+        setInsufficientFunds(false);
       } catch (error) {
         console.error("Failed to add transaction:", error);
-        setError(error.message);
+        if (error.message.includes("Insufficient cash")) {
+          setInsufficientFunds(true);
+        } else {
+          setError(error.message);
+        }
       }
     },
-    [app, fetchTransactions]
+    [app]
   );
+
+  const handleNavigateToPortfolio = () => {
+    router.push("/portfolio");
+  };
 
   if (loading) {
     return (
@@ -139,14 +147,30 @@ const Transactions = () => {
     );
   }
 
-  if (error) {
+  if (error || insufficientFunds) {
     return (
       <div className="transactions error">
         <h1>Transactions</h1>
-        <p className="error-message">Error: {error}</p>
-        <button onClick={fetchTransactions} className="retry-button">
-          Retry
-        </button>
+        {insufficientFunds ? (
+          <>
+            <p className="error-message">
+              Insufficient funds! Go to portfolio to deposit funds
+            </p>
+            <button
+              onClick={handleNavigateToPortfolio}
+              className="portfolio-button"
+            >
+              Portfolio
+            </button>
+          </>
+        ) : (
+          <>
+            <p className="error-message">Error: {error}</p>
+            <button onClick={fetchTransactions} className="retry-button">
+              Retry
+            </button>
+          </>
+        )}
       </div>
     );
   }

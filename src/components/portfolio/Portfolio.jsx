@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import PieChartBox from "@/components/portfolio/charts/pieCartBox/PieChartBox";
 import PortfolioTable from "@/components/portfolio/portfolioTable/PortfolioTable";
 import Wallet from "@/components/portfolio/wallet/Wallet";
@@ -16,40 +16,63 @@ const PortfolioComponent = () => {
 
   const app = useFeathers();
 
-  const fetchPortfolioData = async () => {
-    setLoading(true);
-    setError(null);
+  const fetchPortfolioData = useCallback(
+    async (forceRefresh = false) => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      const { user: currentUser } = await app.authenticate();
-      if (!currentUser) {
-        setTotals(null);
-        setPortfolio(null);
-        return;
+      try {
+        const { user: currentUser } = await app.authenticate();
+        if (!currentUser) {
+          setTotals(null);
+          setPortfolio(null);
+          return;
+        }
+
+        // Fetch fresh data
+        const [portfolioData, portfolioResponse] = await Promise.all([
+          app.service("portfolio").find({
+            query: { name: "calculate" },
+          }),
+          app.service("portfolio").find({}),
+        ]);
+
+        // Update state
+        setTotals(portfolioData);
+        setPortfolio(portfolioResponse.data[0]);
+      } catch (error) {
+        setError(error.message);
+        console.error("Error fetching portfolio data:", error);
+      } finally {
+        setLoading(false);
       }
+    },
+    [app]
+  );
 
-      // Fetch portfolio data for calculations
-      const portfolioData = await app.service("portfolio").find({
-        query: {
-          name: "calculate",
-        },
-      });
+  // Simplify the transaction handlers
+  useEffect(() => {
+    const transactionService = app.service("transactions");
 
-      // Fetch portfolio data for cash balance
-      const portfolioResponse = await app.service("portfolio").find({});
-      setTotals(portfolioData);
-      setPortfolio(portfolioResponse.data[0]);
-    } catch (error) {
-      setError(error.message);
-      console.error("Error fetching portfolio data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const handleTransactionChange = () => {
+      fetchPortfolioData(true);
+    };
 
+    transactionService.on("created", handleTransactionChange);
+    transactionService.on("updated", handleTransactionChange);
+    transactionService.on("removed", handleTransactionChange);
+
+    return () => {
+      transactionService.removeListener("created", handleTransactionChange);
+      transactionService.removeListener("updated", handleTransactionChange);
+      transactionService.removeListener("removed", handleTransactionChange);
+    };
+  }, [app, fetchPortfolioData]);
+
+  // Initial load
   useEffect(() => {
     fetchPortfolioData();
-  }, []);
+  }, [fetchPortfolioData]);
 
   // Memoize pie chart data calculations
   const pieData = useMemo(() => {
@@ -78,8 +101,9 @@ const PortfolioComponent = () => {
   const tableRows = useMemo(() => {
     if (!totals) return [];
 
-    return Object.values(totals)
-      .map((item) => ({
+    return Object.entries(totals)
+      .map(([ticker, item]) => ({
+        _id: ticker,
         ticker: item.ticker,
         avgBuy: item.avgBuy.toFixed(2),
         totalSpent: item.totalSpent?.toFixed(2),
@@ -93,10 +117,45 @@ const PortfolioComponent = () => {
       .sort((a, b) => b.percentage - a.percentage);
   }, [totals]);
 
-  // Add this callback function to handle wallet updates
-  const handleWalletUpdate = async () => {
-    await fetchPortfolioData();
-  };
+  // Update handleWalletUpdate to remove localStorage operations
+  const handleWalletUpdate = useCallback(
+    (newCashAmount) => {
+      if (!portfolio || !totals) return;
+
+      // Update portfolio cash amount locally
+      setPortfolio((prev) => ({
+        ...prev,
+        cash: newCashAmount,
+      }));
+
+      // Recalculate totals with new cash amount
+      const totalValue =
+        Object.values(totals).reduce(
+          (sum, item) => sum + item.currentValue,
+          0
+        ) + newCashAmount;
+
+      // Update percentages in totals
+      const updatedTotals = Object.entries(totals).reduce(
+        (acc, [ticker, item]) => {
+          acc[ticker] = {
+            ...item,
+            percentage: (item.currentValue / totalValue) * 100,
+          };
+          return acc;
+        },
+        {}
+      );
+
+      setTotals(updatedTotals);
+    },
+    [portfolio, totals]
+  );
+
+  // Add refresh button handler
+  const handleManualRefresh = useCallback(() => {
+    fetchPortfolioData(true);
+  }, [fetchPortfolioData]);
 
   if (loading) {
     return (
@@ -141,6 +200,9 @@ const PortfolioComponent = () => {
     <div className="portfolio-container">
       <div className="portfolio-header">
         <h1>Holdings</h1>
+        {/* <button onClick={handleManualRefresh} className="refresh-button">
+          Refresh
+        </button> */}
       </div>
       <div className="portfolio-content">
         <div className="top-section">

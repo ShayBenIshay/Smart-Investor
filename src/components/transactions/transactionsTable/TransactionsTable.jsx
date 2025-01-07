@@ -1,3 +1,4 @@
+import { memo } from "react";
 import DataTable from "@/components/dataTable/DataTable";
 import Image from "next/image";
 
@@ -79,18 +80,7 @@ const columns = [
   },
 ];
 
-const dateToStr = (dateNumber) => {
-  try {
-    const timestamp = parseInt(dateNumber.$date.$numberLong, 10);
-    if (isNaN(timestamp)) throw new Error("Invalid timestamp");
-    return new Date(timestamp).toISOString().split("T")[0];
-  } catch (error) {
-    console.error("Error converting date:", error);
-    return "Invalid date";
-  }
-};
-
-const TransactionsTable = ({ transactions = [] }) => {
+const TransactionsTable = memo(({ transactions = [] }) => {
   const rows = transactions?.map((row) => {
     const createdAt = row.createdAt.split("T")[0];
 
@@ -109,6 +99,8 @@ const TransactionsTable = ({ transactions = [] }) => {
   });
 
   return <DataTable columns={columns} rows={rows} />;
-};
+});
+
+TransactionsTable.displayName = "TransactionsTable";
 
 export default TransactionsTable;

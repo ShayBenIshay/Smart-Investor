@@ -1,9 +1,9 @@
+import { memo, useCallback } from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import "./dataTable.scss";
 
-const DataTable = ({ columns, rows, pageSize = 10 }) => {
-  let id = 1;
-  rows?.map((row) => (row.id = id++));
+const DataTable = memo(({ columns, rows, pageSize = 10 }) => {
+  const getRowId = useCallback((row) => row._id, []); // Assuming your data has _id from MongoDB
 
   return (
     <div className="dataTable">
@@ -11,6 +11,7 @@ const DataTable = ({ columns, rows, pageSize = 10 }) => {
         className="dataGrid"
         rows={rows || []}
         columns={columns}
+        getRowId={getRowId}
         initialState={{
           pagination: {
             paginationModel: {
@@ -35,6 +36,8 @@ const DataTable = ({ columns, rows, pageSize = 10 }) => {
       />
     </div>
   );
-};
+});
+
+DataTable.displayName = "DataTable";
 
 export default DataTable;

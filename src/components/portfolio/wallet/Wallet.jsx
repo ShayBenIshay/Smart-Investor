@@ -1,8 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import styles from "./wallet.module.css";
 import { useFeathers } from "@/services/feathers";
+
+const WalletButtons = ({ onDeposit, onWithdraw, amount, isLoading }) => {
+  return (
+    <div className={styles.buttonContiner}>
+      <button
+        className={styles.deposit}
+        onClick={onDeposit}
+        disabled={isLoading}
+      >
+        {isLoading ? "Processing..." : "Deposit"}
+      </button>
+      <button
+        className={styles.withdraw}
+        onClick={onWithdraw}
+        disabled={isLoading}
+      >
+        {isLoading ? "Processing..." : "Withdraw"}
+      </button>
+    </div>
+  );
+};
+
+const LiquidDisplay = ({ value }) => {
+  const formattedValue = useMemo(() => {
+    return Number.isInteger(value) ? value : value.toFixed(2);
+  }, [value]);
+
+  return <p>{`Liquid: $${formattedValue}`}</p>;
+};
 
 const Wallet = ({ liquid: initialLiquid, onWalletUpdate }) => {
   const [liquid, setLiquid] = useState(initialLiquid);
@@ -26,7 +55,7 @@ const Wallet = ({ liquid: initialLiquid, onWalletUpdate }) => {
         .patch(portfolio._id, { cash: updatedWallet });
       setLiquid(updatedWallet);
       setAmount("");
-      onWalletUpdate();
+      onWalletUpdate(updatedWallet);
     } catch (error) {
       console.error("Deposit failed:", error);
       alert("Deposit failed. Please try again.");
@@ -57,7 +86,7 @@ const Wallet = ({ liquid: initialLiquid, onWalletUpdate }) => {
         .patch(portfolio._id, { cash: updatedWallet });
       setLiquid(updatedWallet);
       setAmount("");
-      onWalletUpdate();
+      onWalletUpdate(updatedWallet);
     } catch (error) {
       console.error("Withdrawal failed:", error);
       alert("Withdrawal failed. Please try again.");
@@ -69,9 +98,7 @@ const Wallet = ({ liquid: initialLiquid, onWalletUpdate }) => {
   return (
     <div className={styles.walletContainer}>
       <h2>Your Wallet</h2>
-      <p>{`Liquid: $${
-        Number.isInteger(liquid) ? liquid : liquid.toFixed(2)
-      }`}</p>
+      <LiquidDisplay value={liquid} />
       <input
         type="number"
         value={amount}
@@ -79,22 +106,12 @@ const Wallet = ({ liquid: initialLiquid, onWalletUpdate }) => {
         placeholder="Enter amount"
         disabled={isLoading}
       />
-      <div className={styles.buttonContiner}>
-        <button
-          className={styles.deposit}
-          onClick={handleDeposit}
-          disabled={isLoading}
-        >
-          {isLoading ? "Processing..." : "Deposit"}
-        </button>
-        <button
-          className={styles.withdraw}
-          onClick={handleWithdrawal}
-          disabled={isLoading}
-        >
-          {isLoading ? "Processing..." : "Withdraw"}
-        </button>
-      </div>
+      <WalletButtons
+        onDeposit={handleDeposit}
+        onWithdraw={handleWithdrawal}
+        amount={amount}
+        isLoading={isLoading}
+      />
     </div>
   );
 };
