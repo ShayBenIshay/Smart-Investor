@@ -25,10 +25,10 @@ const Transactions = () => {
         setTransactions(null);
         return;
       }
-      console.log("user", user);
 
-      const queryResponse = await app.service("transactions").find({});
-      console.log("queryResponse.data", queryResponse.data);
+      const queryResponse = await app.service("/transactions").find({
+        query: {},
+      });
       setTransactions(queryResponse.data);
     } catch (err) {
       setError(err.message);
