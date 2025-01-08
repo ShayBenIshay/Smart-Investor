@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useFeathers } from "@/services/feathers";
 import "./localLogin.scss";
 
@@ -8,8 +8,23 @@ const LocalLogin = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   const app = useFeathers();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        await app.authenticate();
+        window.location.href = "/";
+      } catch (error) {
+        // Not authenticated, that's okay
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+    checkAuth();
+  }, [app]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -60,6 +75,28 @@ const LocalLogin = () => {
     }
   };
 
+  if (isCheckingAuth) {
+    return (
+      <div className="login">
+        <div className="loading-container">
+          <div className="loading-spinner" />
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="login">
+        <div className="loading-container">
+          <div className="loading-spinner" />
+          <p>Logging in...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="login">
       <div className="modal">
@@ -90,11 +127,9 @@ const LocalLogin = () => {
               required
             />
           </div>
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? "Loading..." : "Login"}
-          </button>
-          <button type="button" onClick={handleSignup} disabled={isLoading}>
-            {isLoading ? "Loading..." : "Signup"}
+          <button type="submit">Login</button>
+          <button type="button" onClick={handleSignup}>
+            Signup
           </button>
         </form>
       </div>
