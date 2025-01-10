@@ -33,7 +33,7 @@ const LiquidDisplay = ({ value }) => {
   return <p>{`Liquid: $${formattedValue}`}</p>;
 };
 
-const Wallet = ({ liquid: initialLiquid, onWalletUpdate }) => {
+const Wallet = ({ liquid: initialLiquid, onWalletUpdate, agentId }) => {
   const [liquid, setLiquid] = useState(initialLiquid);
   const [amount, setAmount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -46,7 +46,9 @@ const Wallet = ({ liquid: initialLiquid, onWalletUpdate }) => {
     try {
       const deposit = Number(amount);
       const { user } = await app.reAuthenticate();
-      const queryResponse = await app.service("portfolio").find({});
+      const queryResponse = await app.service("portfolio").find({
+        query: agentId ? { agentId: agentId } : {},
+      });
       const portfolio = queryResponse.data[0];
 
       const updatedWallet = portfolio.cash + deposit;
@@ -71,7 +73,9 @@ const Wallet = ({ liquid: initialLiquid, onWalletUpdate }) => {
     try {
       const withdrawal = Number(amount);
       const { user } = await app.reAuthenticate();
-      const queryResponse = await app.service("portfolio").find({});
+      const queryResponse = await app.service("portfolio").find({
+        query: agentId ? { agentId: agentId } : {},
+      });
       const portfolio = queryResponse.data[0];
 
       if (Number(withdrawal) > Number(portfolio.cash)) {

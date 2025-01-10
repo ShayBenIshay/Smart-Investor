@@ -1,28 +1,25 @@
 import { memo, useMemo } from "react";
 import DataTable from "@/components/dataTable/DataTable";
+import Image from "next/image";
 import { TRANSACTION_TABLE_COLUMNS } from "@/config/constants";
 
-const TransactionsTable = memo(({ transactions = [] }) => {
+const AgentTransactionsTable = memo(({ transactions = [] }) => {
   const rows = useMemo(() => {
     if (!transactions?.length) return [];
 
-    return transactions.map((row) => {
-      const createdAt = row.createdAt?.split("T")[0];
+    return transactions.map((transaction) => {
+      const createdAt = new Date(transaction.createdAt).toLocaleDateString();
 
-      const newRow = {
-        ...row,
+      return {
+        ...transaction,
+        _id: transaction._id || transaction.id,
         executedAt: createdAt,
         createdAt,
-        _id: row._id || row.id,
+        price:
+          typeof transaction.price === "number"
+            ? transaction.price.toFixed(2)
+            : transaction.price,
       };
-
-      Object.keys(newRow).forEach((key) => {
-        const value = newRow[key];
-        if (typeof value === "number") {
-          newRow[key] = Number.isInteger(value) ? value : value.toFixed(2);
-        }
-      });
-      return newRow;
     });
   }, [transactions]);
 
@@ -43,6 +40,6 @@ const TransactionsTable = memo(({ transactions = [] }) => {
   return <DataTable columns={TRANSACTION_TABLE_COLUMNS} rows={rows} />;
 });
 
-TransactionsTable.displayName = "TransactionsTable";
+AgentTransactionsTable.displayName = "AgentTransactionsTable";
 
-export default TransactionsTable;
+export default AgentTransactionsTable;
