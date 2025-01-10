@@ -14,9 +14,7 @@ const Agent = ({ agentId }) => {
     const getAgent = async () => {
       try {
         setIsLoading(true);
-        const agentResponse = await app.service("agent").find({
-          query: { name: "find", agentId: agentId },
-        });
+        const agentResponse = await app.service("agent").get(agentId);
         setAgent(agentResponse);
       } catch (err) {
         setError(err.message);
@@ -32,11 +30,10 @@ const Agent = ({ agentId }) => {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!agent) return <div>No agent found</div>;
-
   return (
     <div>
       <div>
-        <h2>Details page of: "{agent.name} page"</h2>
+        <h2>{`Details page of: "${agent.name} page"`}</h2>
         <p>
           here you can see the agents Portfolio, Trades, and Tweets he posted
         </p>
