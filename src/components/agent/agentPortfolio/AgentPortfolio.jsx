@@ -125,7 +125,7 @@ const AgentPortfolio = ({ agentId }) => {
   return (
     <div className="portfolio-container">
       <div className="portfolio-header">
-        <h1>Agent's Holdings</h1>
+        <h1>Holdings</h1>
       </div>
       <div className="portfolio-content">
         <div className="top-section">
